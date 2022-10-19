@@ -93,8 +93,10 @@ function cleanup_voice_file() {
         if [ -e ${VOICE}/$f ]; then
             printf "$f ${yellow}is OK\n${reset}"
         else
-            printf "$f ${yellow}Not found\n${reset}"
-            rm -rf ${VOICE} ${VOICE_NAME}
+            printf "$f ${red}Not found\n${reset}"
+            if [ -f ${VOICE_NAME} ]; then
+                rm -f ${VOICE_NAME}
+            fi
         fi
     done
 }
@@ -409,7 +411,7 @@ function get_voice() {
         VOICE_FILE=1
     fi
     if [ -z $VOICE_FILE ]; then
-        rm -rf ${VOICE} &&
+        rm -rf ${VOICE}
     printf "${blue}[*] Downloading voice...${reset}\n\n"
     cd $PREFIX/bin && axel ${EXTRA_ARGS} --alternate "$VOICE_URL" && cd $HOME
     fi
@@ -454,7 +456,7 @@ function extract_voice() {
     fi
     if [ -z $KEEP_VOICE ]; then
         printf "\n${blue}[*] Extracting voice... ${reset}\n\n"
-        cd /sdcard && proot --link2symlink tar -xf $VOICE_NAME 2> /dev/null || : && cd $HOME
+        cd /sdcard && tar -xf $VOICE_NAME && cd $HOME
     else
         printf "${yellow}[!] Using existing voice directory${reset}\n"
     fi
