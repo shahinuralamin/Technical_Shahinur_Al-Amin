@@ -131,12 +131,12 @@ function check_dependencies() {
     ##apt update -y &> /dev/null
     apt-get update -y &> /dev/null || apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" dist-upgrade -y &> /dev/null
     if [ -e $HOME/storage ]; then
-        echo "  Termux storage setup is OK"
+        echo "  Storage is OK"
     else
         printf "Configuring termux setup storage...\n"
         termux-setup-storage
     fi
-    for i in proot tar axel wget pulseaudio play-audio; do
+    for i in proot tar axel pulseaudio play-audio; do
         if [ -e $PREFIX/bin/$i ]; then
             echo "  $i is OK"
         else
