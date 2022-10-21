@@ -748,6 +748,33 @@ EOF
   fi
 }
 
+function link() {
+    unset KEEP_DESKTOP
+    if [ -d $CHROOT/home/kali/Desktop ]; then
+        KEEP_DESKTOP=1
+    fi
+    if [ -z $KEEP_DESKTOP ]; then
+        mkdir $CHROOT/home/kali/Desktop
+    fi
+    unset KEEP_LINK
+    if [ -f $CHROOT/home/kali/Desktop/Technical_Shahinur_Al_Amin.desktop ]; then
+        KEEP_LINK=1
+    fi
+    if [ -z $KEEP_LINK ]; then
+        ALAMIN=$CHROOT/home/kali/Desktop/Technical_Shahinur_Al_Amin.desktop
+        cat > $ALAMIN <<- EOF
+[Desktop Entry]
+Version=1.0
+Type=Link
+Name=Technical_Shahinur_Al-Amin
+Comment=
+Icon=/sdcard/kali_voice/Technical_Shahinur_Al_Amin.jpeg
+URL=https://www.youtube.com/channel/UC62IBH3tn8oR1ABGK63ItVQ
+EOF
+    chmod 700 $ALAMIN
+    fi
+}
+
 function alhamdulillah() {
     printf "${green}##               Alhamdulillah                 ##\n"
     printf "${blue}*************************************************\n"
@@ -829,6 +856,7 @@ time_zone
 tz_command
 network_setup
 fonts_setup
+link
 alhamdulillah
 
 print_banner
