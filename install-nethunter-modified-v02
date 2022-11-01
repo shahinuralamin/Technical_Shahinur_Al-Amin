@@ -54,7 +54,7 @@ function qemu_i386() {
     printf "${blue}[*] Checking qemu architecture ..."
     case $archcase in
         arm64-v8a|arm64-v8|aarch64|arm64)
-            SYS_ARCH1=i386
+            SYS_ARCH=i386
             qemu_run
             unset QEMU
             if [ -f $PREFIX/bin/qemu-i386-static ]; then
@@ -70,7 +70,7 @@ function qemu_i386() {
             fi
             ;;
         armeabi|armv8l|armeabi-v7a|armv7l)
-            SYS_ARCH1=i386
+            SYS_ARCH=i386
             qemu_run
             unset QEMU
             if [ -f $PREFIX/bin/qemu-i386-static ]; then
@@ -95,7 +95,7 @@ function qemu_amd64() {
     printf "${blue}[*] Checking qemu architecture ..."
     case $archcase in
         arm64-v8a|arm64-v8|aarch64|arm64)
-            SYS_ARCH1=amd64
+            SYS_ARCH=amd64
             qemu_run
             unset QEMU
             if [ -f $PREFIX/bin/qemu-x86_64-static ]; then
@@ -111,7 +111,7 @@ function qemu_amd64() {
             fi
             ;;
         armeabi|armv8l|armeabi-v7a|armv7l)
-            SYS_ARCH1=amd64
+            SYS_ARCH=amd64
             qemu_run
             unset QEMU
             if [ -f $PREFIX/bin/qemu-x86_64-static ]; then
@@ -155,7 +155,7 @@ function device_arch() {
 }
 
 function qemu_run() {
-    case ${SYS_ARCH1} in
+    case ${SYS_ARCH} in
         amd64)
             QEMU_RUN=qemu-x86_64-static
             ;;
@@ -166,11 +166,8 @@ function qemu_run() {
 }
 function set_strings() {
     CHROOT=kali-${SYS_ARCH}
-    CHROOT=kali-${SYS_ARCH1}
     IMAGE_NAME=kalifs-${SYS_ARCH}-full.tar.xz
-    IMAGE_NAME=kalifs-${SYS_ARCH1}-full.tar.xz
     SHA_NAME=kalifs-${SYS_ARCH}-full.sha512sum
-    SHA_NAME=kalifs-${SYS_ARCH1}-full.sha512sum
     VOICE=/sdcard/kali_voice
     VOICE_NAME=$PREFIX/bin/kali_voice.tar.xz
     VOICE1=Welcome_to_Kali.wav
@@ -941,7 +938,7 @@ check_dependencies
 HEIGHT=15
 WIDTH=40
 CHOICE_HEIGHT=4
-BACKTITLE="Architechture"
+BACKTITLE="Tecnical Shahinur_Al-Amin"
 TITLE="Architechture list"
 MENU="Qemu Architechture is very slow meybe. Choose one of the following options:"
 
