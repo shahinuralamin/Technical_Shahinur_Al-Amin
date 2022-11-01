@@ -55,6 +55,7 @@ function qemu_i386() {
     case $archcase in
         arm64-v8a|arm64-v8|aarch64|arm64)
             SYS_ARCH=i386
+            Q=-q
             qemu_run
             unset QEMU
             if [ -f $PREFIX/bin/qemu-i386-static ]; then
@@ -71,6 +72,7 @@ function qemu_i386() {
             ;;
         armeabi|armv8l|armeabi-v7a|armv7l)
             SYS_ARCH=i386
+            Q=-q
             qemu_run
             unset QEMU
             if [ -f $PREFIX/bin/qemu-i386-static ]; then
@@ -96,6 +98,7 @@ function qemu_amd64() {
     case $archcase in
         arm64-v8a|arm64-v8|aarch64|arm64)
             SYS_ARCH=amd64
+            Q=-q
             qemu_run
             unset QEMU
             if [ -f $PREFIX/bin/qemu-x86_64-static ]; then
@@ -112,6 +115,7 @@ function qemu_amd64() {
             ;;
         armeabi|armv8l|armeabi-v7a|armv7l)
             SYS_ARCH=amd64
+            Q=-q
             qemu_run
             unset QEMU
             if [ -f $PREFIX/bin/qemu-x86_64-static ]; then
@@ -599,7 +603,7 @@ fi
 cmdline="proot \\
         --link2symlink \\
         -0 \\
-        -r $CHROOT -q ${QEMU_RUN} \\
+        -r $CHROOT ${Q} ${QEMU_RUN} \\
         -b /dev \\
         -b /proc \\
         -b /sdcard \\
