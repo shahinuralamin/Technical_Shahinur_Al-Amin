@@ -77,6 +77,12 @@ function check_dependencies() {
         fi
     done
     apt upgrade -y
+    bootstrap_dir
+}
+
+function bootstrap_dir() {
+  if ask "[?] Do you want continue..." "Y"; then
+     printf "${yellow}Continuing Anyway${reset}\n\n"
     if [ -d /sdcard/Termux-Bootstrap ]; then
         printf "${yellow}Termux-Bootstrap directory found${reset}\n\n"
     else
@@ -91,6 +97,7 @@ function check_dependencies() {
         printf "${green}Welcome to Tecnical Shahinur_Al-Amin${reset}\n\n"
         play-audio /sdcard/Termux-Bootstrap/welcome.mp3
     fi
+  fi
 }
 
 
@@ -162,6 +169,12 @@ function switch() {
             esac
             ;;
     esac
+    if [ -d /sdcard/Termux-Bootstrap ]; then
+        printf "${yellow}Termux-Bootstrap directory found${reset}\n\n"
+    else
+        printf "${yellow}Termux-Bootstrap directory created${reset}\n\n"
+        mkdir /sdcard/Termux-Bootstrap
+    fi
     printf "${yellow}some warning message${reset}\n\n"
     printf "${green}"
     echo "WARNING: You are about to enter the world of 32-bit, here's what you will expect when entering to 32-bit"
@@ -388,18 +401,18 @@ function prefix() {
 
 function print_banner() {
     clear
-    printf "${yellow}  ###############################################.\n"
-    printf "${yellow} ##          ${light_cyan}Technical Shahinur_Al-Amin${yellow}         '##.\n"
-    printf "${yellow}##  ${green}888888888888    .d888b.           db        ${yellow} '##\n"
-    printf "${yellow}##  ${green}     88       d88'   '88b        d88b       ${yellow}  ##\n"
-    printf "${yellow}##  ${green}     88        888     '8b      d8''8b      ${yellow}  ##\n"
-    printf "${yellow}##  ${green}     88         '88b           d8'  '8b     ${yellow}  ##\n"
-    printf "${yellow}##  ${green}     88            '88b.      d8YaaaaY8b    ${yellow}  ##\n"
-    printf "${yellow}##  ${green}     88       d8.    '88b    d8''''''''8b   ${yellow}  ##\n"
-    printf "${yellow}##  ${green}     88       d88'   .88b   d8'        '8b  ${yellow}  ##\n"
-    printf "${yellow}##. ${green}     88         'd888b'    d8'          '8b ${yellow}  ##\n"
-    printf "${yellow}'##.              ${light_cyan}Creator By Shahinur${yellow}            ##\n"
-    printf "${yellow} '############## ${red}PREFIX-SWITCHER${yellow} ################${reset}\n\n"
+    printf "${yellow}  #############################################.\n"
+    printf "${yellow} ##         ${light_cyan}Technical Shahinur_Al-Amin${yellow}        '##.\n"
+    printf "${yellow}##  ${green}888888888888   .d888b.           db       ${yellow} '##\n"
+    printf "${yellow}##  ${green}     88      d88'   '88b        d88b      ${yellow}  ##\n"
+    printf "${yellow}##  ${green}     88       888     '8b      d8''8b     ${yellow}  ##\n"
+    printf "${yellow}##  ${green}     88        '88b           d8'  '8b    ${yellow}  ##\n"
+    printf "${yellow}##  ${green}     88           '88b.      d8YaaaaY8b   ${yellow}  ##\n"
+    printf "${yellow}##  ${green}     88      d8.    '88b    d8''''''''8b  ${yellow}  ##\n"
+    printf "${yellow}##  ${green}     88      d88'   .88b   d8'        '8b ${yellow}  ##\n"
+    printf "${yellow}##. ${green}     88        'd888b'    d8'          '8b${yellow}  ##\n"
+    printf "${yellow}'##.             ${light_cyan}Creator By Shahinur${yellow}           ##\n"
+    printf "${yellow} '############## ${red}PREFIX-SWITCHER${yellow} ##############${reset}\n\n"
 }
 
 
