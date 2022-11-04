@@ -49,7 +49,7 @@ function get_version() {
             exit
             ;;
         *)
-            printf "${yellow}Your device's Android version is $(getprop ro.build.version.release)${reset}\n\n"
+            printf "${yellow}Your device's Android version $(getprop ro.build.version.release)${reset}\n\n"
             ;;
     esac
 }
@@ -87,7 +87,7 @@ function check_dependencies() {
         printf "${green}Welcome to Tecnical Shahinur_Al-Amin${reset}\n\n"
         play-audio /sdcard/Termux-Bootstrap/welcome.mp3
     else
-        axel --output=/sdcard/Termux-Bootstrap/welcome.mp3
+        axel --output=/sdcard/Termux-Bootstrap/welcome.mp3 https://github.com/shahinuralamin/Technical_Shahinur_Al-Amin/raw/main/welcome.mp3
         printf "${green}Welcome to Tecnical Shahinur_Al-Amin${reset}\n\n"
         play-audio /sdcard/Termux-Bootstrap/welcome.mp3
     fi
