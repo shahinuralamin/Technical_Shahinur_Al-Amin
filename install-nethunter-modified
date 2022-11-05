@@ -2,7 +2,7 @@
 
 VERSION=2020011601
 BASE_URL=https://kali.download/nethunter-images/current/rootfs
-VOICE_URL=https://github.com/shahinuralamin/Technical_Shahinur_Al-Amin/raw/main/kali_voice.tar.xz
+VOICE_URL=https://github.com/shahinuralamin/Technical_Shahinur_Al-Amin/releases/download/install-nethunter-modified/kali_voice.tar.xz
 USERNAME=kali
 
 if [ -f "/usr/bin/getprop" ]; then getprop="1"; fi
@@ -85,11 +85,12 @@ function set_strings() {
     VOICE12=Downloading_rootfs..wav
     VOICE13=Extracting_rootfs.wav
     VOICE14=Using_existing_rootfs_directory.wav
+    VOICE15=Extracted.mp3
 }
 
 function cleanup_voice_file() {
     printf "${blue}\n[*] Checking voice files...${reset}\n"
-    for f in ${VOICE1} ${VOICE2} ${VOICE3} ${VOICE4} ${VOICE5} ${VOICE6} ${VOICE7} ${VOICE8} ${VOICE9} ${VOICE10} ${VOICE11} ${VOICE12} ${VOICE13} ${VOICE14}; do
+    for f in ${VOICE1} ${VOICE2} ${VOICE3} ${VOICE4} ${VOICE5} ${VOICE6} ${VOICE7} ${VOICE8} ${VOICE9} ${VOICE10} ${VOICE11} ${VOICE12} ${VOICE13} ${VOICE14} ${VOICE15}; do
         if [ -e ${VOICE}/$f ]; then
             printf "$f ${yellow}is OK\n${reset}"
         else
@@ -148,6 +149,11 @@ function check_dependencies() {
         fi
     done
     apt upgrade -y
+    if [ -f install-nethunter-modified ]; then
+        rm -f install-nethunter-modified
+        axel --output=$PREFIX/bin/install-nethunter-modified https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/install-nethunter-modified
+        mv $PREFIX/bin/install-nethunter-modified install-nethunter-modified
+    fi
 }
 
 function sound_setup() {
@@ -413,7 +419,7 @@ function get_voice() {
     if [ -z $VOICE_FILE ]; then
         rm -rf ${VOICE}
     printf "${blue}[*] Downloading voice...${reset}\n\n"
-    cd $PREFIX/bin && axel ${EXTRA_ARGS} --alternate "$VOICE_URL" && cd $HOME
+    axel ${EXTRA_ARGS} --alternate --output=${VOICE_NAME} "$VOICE_URL"
     fi
 }
 
@@ -443,6 +449,8 @@ function extract_rootfs() {
         printf "\n${blue}[*] Extracting rootfs... ${reset}\n\n"
         play-audio ${VOICE}/${VOICE13}
         proot --link2symlink tar -xf $IMAGE_NAME 2> /dev/null || :
+        printf "${yellow}[√] You have successfully extracted rootfs${reset}\n\n"
+        play-audio ${VOICE}/${VOICE15}
     else
         printf "${yellow}[!] Using existing rootfs directory${reset}\n"
         play-audio ${VOICE}/${VOICE14}
@@ -457,6 +465,8 @@ function extract_voice() {
     if [ -z $KEEP_VOICE ]; then
         printf "\n${blue}[*] Extracting voice... ${reset}\n\n"
         cd /sdcard && tar -xf $VOICE_NAME && cd $HOME
+        printf "${yellow}[√] You have successfully extracted voice${reset}\n\n"
+        play-audio ${VOICE}/${VOICE15}
     else
         printf "${yellow}[!] Using existing voice directory${reset}\n"
     fi
@@ -738,6 +748,10 @@ Command on Terminal :
 Type:
 
 tz
+
+or
+
+sudo dpkg-reconfigure tzdata
 
 and command : sudo password :
 
