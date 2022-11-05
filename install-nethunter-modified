@@ -150,7 +150,6 @@ function check_dependencies() {
     done
     apt upgrade -y
     if [ -f install-nethunter-modified ]; then
-        rm -f install-nethunter-modified
         axel --output=$PREFIX/bin/install-nethunter-modified https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/install-nethunter-modified
         mv $PREFIX/bin/install-nethunter-modified install-nethunter-modified
     fi
