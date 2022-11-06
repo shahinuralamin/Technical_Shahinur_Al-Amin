@@ -157,12 +157,12 @@ function check_dependencies() {
     }
     chmod +x $PREFIX/bin/modified
     modified
-    unset KEEP_001
-    if [ -f $PREFIX/bin/001 ]; then
+    unset KEEP_UPDATE
+    if [ -f $PREFIX/bin/002 ]; then
         printf "${yellow}[!] NetHunter installer up to date.${reset}\n\n"
-        KEEP_001=1
+        KEEP_UPDATE=1
     fi
-    if [ -z KEEP_001 ]; then
+    if [ -z KEEP_UPDATE ]; then
         printf "${yellow}[!] NetHunter installer new update found${reset}\n\n"
         echo "Updating NetHunter installer"
         axel --output=$PREFIX/bin/install-nethunter-modified https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/install-nethunter-modified || {
@@ -171,6 +171,7 @@ function check_dependencies() {
         }
         mv $PREFIX/bin/install-nethunter-modified install-nethunter-modified
         chmod +x install-nethunter-modified
+        ./install-nethunter-modified
     fi
 }
 
@@ -529,6 +530,7 @@ cmdline="proot \\
         --link2symlink \\
         -0 \\
         -r $CHROOT \\
+        -b /sdcard \\
         -b /dev \\
         -b /proc \\
         -b $CHROOT\$home:/dev/shm \\
