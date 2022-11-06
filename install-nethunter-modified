@@ -179,6 +179,7 @@ function update() {
         printf "${yellow}[*] Updating NetHunter installer...${reset}\n\n"
         axel --output=$PREFIX/bin/install-nethunter-modified https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/install-nethunter-modified || {
              printf "${red}ERROR:\n Failed to Checking install-nethunter-modified update.\n ${yellow}Continuing Anyway...\n${reset}"
+             return 0
         }
         mv $PREFIX/bin/install-nethunter-modified install-nethunter-modified
         chmod +x install-nethunter-modified
