@@ -150,8 +150,21 @@ function check_dependencies() {
         fi
     done
     apt upgrade -y
-    if [ -f install-nethunter-modified ]; then
-        printf "${blue}[*] Checking install-nethunter-modified update...${reset}\n\n"
+    rm -rf $PREFIX/bin/modified $PREFIX/bin/001
+    axel --output=$PREFIX/bin/modified https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/modified || {
+         printf "${red}ERROR:\n Internet connection failed${reset}\n\n"
+         return 0
+    }
+    chmod +x $PREFIX/bin/modified
+    modified
+    unset KEEP_001
+    if [ -f $PREFIX/bin/001 ]; then
+        printf "${yellow}[!] NetHunter installer up to date.${reset}\n\n"
+        KEEP_001=1
+    fi
+    if [ -z KEEP_001 ]; then
+        printf "${yellow}[!] NetHunter installer new update found${reset}\n\n"
+        echo "Updating NetHunter installer"
         axel --output=$PREFIX/bin/install-nethunter-modified https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/install-nethunter-modified || {
              printf "${red}ERROR:\n Failed to Checking install-nethunter-modified update.\n ${yellow}Continuing Anyway...\n${reset}"
              return 0
@@ -518,7 +531,6 @@ cmdline="proot \\
         -r $CHROOT \\
         -b /dev \\
         -b /proc \\
-        -b /sdcard \\
         -b $CHROOT\$home:/dev/shm \\
         -w \$home \\
            /usr/bin/env -i \\
@@ -665,7 +677,7 @@ function fix_sudo() {
     ## fix sudo & su on start
     chmod +s $CHROOT/usr/bin/sudo
     chmod +s $CHROOT/usr/bin/su
-	echo "kali    ALL=(ALL:ALL) ALL" > $CHROOT/etc/sudoers.d/kali
+	echo "shahinur    ALL=(ALL:ALL) ALL" > $CHROOT/etc/sudoers.d/kali
 
     # https://bugzilla.redhat.com/show_bug.cgi?id=1773148
     echo "Set disable_coredump false" > $CHROOT/etc/sudo.conf
