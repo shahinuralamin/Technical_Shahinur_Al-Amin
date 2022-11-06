@@ -160,7 +160,7 @@ function update() {
         KEEP_MODIFIED=1
     fi
     if [ -z $KEEP_MODIFIED ]; then
-        axel --output=$ud https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/modified || {
+        axel --output=$PREFIX/bin/modified https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/modified || {
              printf "${red}ERROR:\n Internet connection failed${reset}\n\n"
         }
     fi
@@ -880,7 +880,6 @@ get_arch
 set_strings
 check_dependencies
 update
-update1
 prepare_fs
 cleanup_voice_file
 get_voice
