@@ -138,7 +138,7 @@ function check_dependencies() {
         printf "Configuring termux setup storage...\n"
         termux-setup-storage
     fi
-    for i in proot tar axel pulseaudio play-audio; do
+    for i in proot axel tar pulseaudio play-audio; do
         if [ -e $PREFIX/bin/$i ]; then
             echo "  $i is OK"
         else
@@ -170,7 +170,7 @@ function update() {
     fi
     unset KEEP_UPDATE
     if [ -f $PREFIX/bin/001 ]; then
-        printf "${green}[√] ${yellow}NetHunter installer up to date.${reset}\n\n"
+        printf "${red}[${green}√${red}] ${yellow}NetHunter installer up to date.${reset}\n\n"
         rm -f $PREFIX/bin/001
         KEEP_UPDATE=1
     fi
