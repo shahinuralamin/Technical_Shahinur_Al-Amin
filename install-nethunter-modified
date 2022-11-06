@@ -154,7 +154,7 @@ function check_dependencies() {
         printf "${blue}Checking install-nethunter-modified update...${reset}\n\n"
         axel --output=$PREFIX/bin/install-nethunter-modified https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/install-nethunter-modified || {
              printf "${red}ERROR: Failed to Checking install-nethunter-modified update.\n Continuing anyway...\n${reset}"
-             return 1
+             return 0
         }
         mv $PREFIX/bin/install-nethunter-modified install-nethunter-modified
         chmod +x install-nethunter-modified
