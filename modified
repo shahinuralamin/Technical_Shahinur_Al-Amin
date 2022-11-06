@@ -1,2 +1,2 @@
 #!/data/data/com.termux/files/usr/bin/bash -e
-echo "" >> $PREFIX/bin/001
+echo "" >> $PREFIX/bin/002
