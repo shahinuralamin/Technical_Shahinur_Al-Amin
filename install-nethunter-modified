@@ -154,9 +154,9 @@ function check_dependencies() {
 }
 
 function update() {
+    rm -f $PREFIX/bin/modified
     unset KEEP_MODIFIED
     if [ -f $PREFIX/bin/modified  ]; then
-        rm -f $PREFIX/bin/modified
         KEEP_MODIFIED=1
     fi
     if [ -z $KEEP_MODIFIED ]; then
