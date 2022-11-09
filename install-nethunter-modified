@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash -e
 
 VERSION=2020011601
-MODIFIED=002
+MODIFIED=003
 BASE_URL=https://kali.download/nethunter-images/current/rootfs
 VOICE_URL=https://github.com/shahinuralamin/Technical_Shahinur_Al-Amin/releases/download/install-nethunter-modified/kali_voice.tar.xz
 USERNAME=kali
@@ -87,6 +87,7 @@ function set_strings() {
     VOICE13=Extracting_rootfs.wav
     VOICE14=Using_existing_rootfs_directory.wav
     VOICE15=Extracted.mp3
+    M003=$PREFIX/bin/modified
 }
 
 function cleanup_voice_file() {
@@ -155,38 +156,35 @@ function check_dependencies() {
 function update() {
     unset KEEP_MODIFIED
     if [ -f $PREFIX/bin/modified  ]; then
-        printf "${yellow}Checking update...${reset}\n\n"
         rm -f $PREFIX/bin/modified
         KEEP_MODIFIED=1
     fi
     if [ -z $KEEP_MODIFIED ]; then
+        printf "${yellow}Checking update...${reset}\n\n"
         axel --output=$PREFIX/bin/modified https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/modified || {
              printf "${red}ERROR:\n Internet connection failed${reset}\n\n"
         }
     fi
-    if [ -f $PREFIX/bin/modified ]; then
-        chmod +x $PREFIX/bin/modified
-        modified
-    fi
-    unset KEEP_UPDATE
-    if [ -f $PREFIX/bin/002 ]; then
-        printf "${red}[${green}√${red}] ${yellow}NetHunter installer up to date.${reset}\n\n"
-        rm -f $PREFIX/bin/002
-        KEEP_UPDATE=1
-    fi
-    if [ -z $KEEP_UPDATE ]; then
-        printf "${yellow}[!] NetHunter installer new update found${reset}\n\n"
-        printf "${yellow}[*] Updating NetHunter installer...${reset}\n\n"
-        axel --output=$PREFIX/bin/install-nethunter-modified https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/install-nethunter-modified || {
-             printf "${red}ERROR:\n Failed to Checking install-nethunter-modified update.\n ${yellow}Continuing Anyway...\n${reset}"
-             return 0
-        }
-        mv $PREFIX/bin/install-nethunter-modified install-nethunter-modified
-        chmod +x install-nethunter-modified
-        printf "${green}[√] NetHunter installer successfully updated${reset}\n\n"
-        ./install-nethunter-modified
-        exit
-    fi
+    while read line; do
+         unset KEEP_UPDATE
+         if [ -f  $line ]; then
+             printf "${red}[${green}√${red}] ${yellow}NetHunter installer up to date.${reset}\n\n"
+             KEEP_UPDATE=1
+         fi
+         if [ -z $KEEP_UPDATE ]; then
+              printf "${yellow}[!] NetHunter installer new update found${reset}\n\n"
+              printf "${yellow}[*] Updating NetHunter installer...${reset}\n\n"
+              axel --output=$PREFIX/bin/install-nethunter-modified https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/install-nethunter-modified || {
+                   printf "${red}ERROR:\n Failed to Checking install-nethunter-modified update.\n ${yellow}Continuing Anyway...\n${reset}"
+                   return 0
+              }
+              mv $PREFIX/bin/install-nethunter-modified install-nethunter-modified
+              chmod +x install-nethunter-modified
+              printf "${green}[√] NetHunter installer successfully updated${reset}\n\n"
+              ./install-nethunter-modified
+              exit
+         fi
+    done < $PREFIX/bin/modified
 }
 
 function sound_setup() {
