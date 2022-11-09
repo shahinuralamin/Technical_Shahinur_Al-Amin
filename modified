@@ -1,6 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/bash -e
-cat > $PREFIX/bin/001 <<- EOF
+cat > $PREFIX/bin/002 <<- EOF
 echo "Update NetHunter"
 EOF
 chmod +x $PREFIX/bin/001
-001
+002
