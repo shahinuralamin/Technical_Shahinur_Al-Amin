@@ -165,7 +165,7 @@ function update() {
              printf "${red}ERROR:\n Internet connection failed${reset}\n\n"
         }
     fi
-    while read line; do
+    while read line; do echo "Preparing update" done < $PREFIX/bin/modified
          unset KEEP_UPDATE
          if [ -f  $line ]; then
              printf "${red}[${green}√${red}] ${yellow}NetHunter installer up to date.${reset}\n\n"
@@ -184,7 +184,6 @@ function update() {
               ./install-nethunter-modified
               exit
          fi
-    done < $PREFIX/bin/modified
 }
 
 function sound_setup() {
