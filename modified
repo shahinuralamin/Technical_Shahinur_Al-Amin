@@ -2,5 +2,5 @@
 cat > $PREFIX/bin/002 <<- EOF
 echo "Update NetHunter"
 EOF
-chmod +x $PREFIX/bin/001
+chmod +x $PREFIX/bin/002
 002
