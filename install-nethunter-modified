@@ -153,17 +153,12 @@ function check_dependencies() {
 }
 
 function update() {
-    unset KEEP_MODIFIED
-    if [ -f $PREFIX/bin/modified ]; then
-        rm -f $PREFIX/bin/modified
-        KEEP_MODIFIED=1
-    fi
-    if [ -z $KEEP_MODIFIED ]; then
-        printf "${yellow}Checking update...${reset}\n\n"
-        axel --output=$PREFIX/bin/modified https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/modified || {
-             printf "${red}ERROR:\n Internet connection failed${reset}\n\n"
-        }
-    fi
+    printf "${yellow}Checking update...${reset}\n\n"
+    axel https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/modified || {
+         printf "${red}ERROR:\n Internet connection failed${reset}\n\n"
+         return 0
+    }
+    mv modified $PREFIX/bin/modified
     while read line; do M003=$PREFIX/bin/modified; done < $PREFIX/bin/modified;
     unset KEEP_UPDATE
     if [ -f $line ]; then
