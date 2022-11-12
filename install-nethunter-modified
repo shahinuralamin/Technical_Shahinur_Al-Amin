@@ -4,11 +4,9 @@ VERSION=2020011601
 MODIFIED=005
 BASE_URL=https://kali.download/nethunter-images/current/rootfs
 VOICE_URL=https://github.com/shahinuralamin/Technical_Shahinur_Al-Amin/releases/download/install-nethunter-modified/kali_voice.tar.xz
+archcase=$(getprop ro.product.cpu.abi)
+archcase=$(uname -m)
 USERNAME=kali
-
-if [ -f "/usr/bin/getprop" ]; then getprop="1"; fi
-if [ ! -z "$getprop" ]; then archcase=$(getprop ro.product.cpu.abi); fi
-if [ -z "$archcase" ]; then archcase=$(uname -m); fi
 
 function unsupported_arch() {
     printf "${red}"
