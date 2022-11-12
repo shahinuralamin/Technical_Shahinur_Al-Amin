@@ -540,8 +540,6 @@ cmdline="proot \\
         -b /dev \\
         -b /proc \\
         -b /sdcard \\
-        -b /storage/emulated/0 \\
-        -b /storage/D99B-190C \\
         -b $CHROOT\$home:/dev/shm \\
         -w \$home \\
            /usr/bin/env -i \\
