@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash -e
 
 VERSION=2020011601
-MODIFIED=004
+MODIFIED=005
 BASE_URL=https://kali.download/nethunter-images/current/rootfs
 VOICE_URL=https://github.com/shahinuralamin/Technical_Shahinur_Al-Amin/releases/download/install-nethunter-modified/kali_voice.tar.xz
 USERNAME=kali
@@ -162,7 +162,7 @@ function update() {
     mv modified $PREFIX/bin/modified
     while read line
     do  case $line in
-            M004)
+            M005)
                 printf "${red}[${green}√${red}] ${yellow}NetHunter installer up to date.${reset}\n\n"
                 ;;
             *)
@@ -175,7 +175,7 @@ function update() {
                 mv $PREFIX/bin/install-nethunter-modified install-nethunter-modified
                 chmod +x install-nethunter-modified
                 printf "${green}[√] NetHunter installer successfully updated${reset}\n\n"
-                ./install-nethunter-modified
+                echo "Again run script ./install-nethunter-modified"
                 exit
                 ;;
         esac
