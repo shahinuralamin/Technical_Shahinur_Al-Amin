@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash -e
 
 VERSION=2020011601
-MODIFIED=003
+MODIFIED=004
 BASE_URL=https://kali.download/nethunter-images/current/rootfs
 VOICE_URL=https://github.com/shahinuralamin/Technical_Shahinur_Al-Amin/releases/download/install-nethunter-modified/kali_voice.tar.xz
 USERNAME=kali
@@ -52,7 +52,8 @@ function ask() {
 }
 
 function get_arch() {
-    printf "${blue}[*] Checking device architecture ..."
+    printf "${blue}[*] Checking device architecture ...${reset}\n\n"
+    printf "${yellow}[>] Your device architecture ${green}[$(uname -m)] ${yellow}[<]"
     case $archcase in
         arm64-v8a|arm64-v8|aarch64|arm64)
             SYS_ARCH=arm64
@@ -154,12 +155,12 @@ function check_dependencies() {
 
 function update() {
     printf "${yellow}Checking update...${reset}\n\n"
-    axel https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/modified || {
+    axel https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/modified 2> /dev/null || {
          printf "${red}ERROR:\n Internet connection failed${reset}\n\n"
          return 0
     }
     mv modified $PREFIX/bin/modified
-    while read line; do M003=$PREFIX/bin/modified; done < $PREFIX/bin/modified;
+    while read line; do M004=$PREFIX/bin/modified; done < $PREFIX/bin/modified;
     unset KEEP_UPDATE
     if [ -f $line ]; then
             printf "${red}[${green}√${red}] ${yellow}NetHunter installer up to date.${reset}\n\n"
@@ -168,7 +169,7 @@ function update() {
     if [ -z $KEEP_UPDATE ]; then
           printf "${yellow}[!] NetHunter installer new update found${reset}\n\n"
           printf "${yellow}[*] Updating NetHunter installer...${reset}\n\n"
-          axel --output=$PREFIX/bin/install-nethunter-modified https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/install-nethunter-modified || {
+          axel --output=$PREFIX/bin/install-nethunter-modified https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/install-nethunter-modified 2> /dev/null || {
                printf "${red}ERROR:\n Failed to Checking install-nethunter-modified update.\n ${yellow}Continuing Anyway...\n${reset}"
                return 0
           }
@@ -488,7 +489,7 @@ function extract_voice() {
     fi
     if [ -z $KEEP_VOICE ]; then
         printf "\n${blue}[*] Extracting voice... ${reset}\n\n"
-        cd /sdcard && tar -xf $VOICE_NAME && cd $HOME
+        cd /sdcard && tar -xf $VOICE_NAME 2> /dev/null || : cd $HOME
         printf "${yellow}[√] You have successfully extracted voice${reset}\n\n"
         play-audio ${VOICE}/${VOICE15}
     else
@@ -538,6 +539,8 @@ cmdline="proot \\
         -b /dev \\
         -b /proc \\
         -b /sdcard \\
+        -b /storage/emulated/0 \\
+        -b /storage/D99B-190C \\
         -b $CHROOT\$home:/dev/shm \\
         -w \$home \\
            /usr/bin/env -i \\
