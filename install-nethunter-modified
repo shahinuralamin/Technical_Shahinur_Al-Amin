@@ -711,13 +711,13 @@ function create_kali_setup_folder() {
 }
 
 function network_setup() {
-  unset KEEP_NETWORK
-  if [ -f /sdcard/kali_setup/Firefox_Network_Setup.txt ]; then
+    unset KEEP_NETWORK
+    if [ -f /sdcard/kali_setup/Firefox_Network_Setup.txt ]; then
       KEEP_NETWORK=1
-  fi
-  if [ -z $KEEP_NETWORK ]; then
-        NETWORK_LAUNCHER=/sdcard/kali_setup/Firefox_Network_Setup.txt
-        cat > $NETWORK_LAUNCHER <<- EOF
+    fi
+    if [ -z $KEEP_NETWORK ]; then
+      NETWORK_LAUNCHER=/sdcard/kali_setup/Firefox_Network_Setup.txt
+      cat > $NETWORK_LAUNCHER <<- EOF
 Technical Shahinur_Al-Amin
 Network Setup Video =
 https://youtu.be/tSI9PzjsjCI
@@ -738,15 +738,15 @@ media.cubeb.sandbox (false)
 
 security.sandbox.content.level (0)
 EOF
-  fi
+    fi
 }
 
 function fonts_setup() {
-  unset KEEP_FONTS
-  if [ -f /sdcard/kali_setup/Fonts_Setup.txt ]; then
-      KEEP_FONTS=1
-  fi
-  if [ -z $KEEP_FONTS ]; then
+    unset KEEP_FONTS
+    if [ -f /sdcard/kali_setup/Fonts_Setup.txt ]; then
+        KEEP_FONTS=1
+    fi
+    if [ -z $KEEP_FONTS ]; then
         FONTS=/sdcard/kali_setup/Fonts_Setup.txt
         cat > $FONTS <<- EOF
 Technical Shahinur_Al-Amin
@@ -757,15 +757,15 @@ https://youtu.be/vB3wlb3tMoU
 
 Thanks
 EOF
-  fi
+    fi
 }
 
 function tz_command() {
-  unset KEEP_TZ
-  if [ -f /sdcard/kali_setup/Time_Zone_Comman.txt ]; then
-      KEEP_TZ=1
-  fi
-  if [ -z $KEEP_TZ ]; then
+    unset KEEP_TZ
+    if [ -f /sdcard/kali_setup/Time_Zone_Comman.txt ]; then
+        KEEP_TZ=1
+    fi
+    if [ -z $KEEP_TZ ]; then
         TZ=/sdcard/kali_setup/Time_Zone_Comman.txt
         cat > $TZ <<- EOF
 Technical Shahinur_Al-Amin
@@ -785,7 +785,7 @@ sudo password is kali
 
 Thanks
 EOF
-  fi
+    fi
 }
 
 function link() {
