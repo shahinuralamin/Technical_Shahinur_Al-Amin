@@ -80,12 +80,12 @@ function check_dependencies() {
         fi
     done
     apt upgrade -y
-    bootstrap_dir
 }
 
 function bootstrap_dir() {
   if ask "[?] Do you want continue..." "Y"; then
      printf "${yellow}Continuing Anyway${reset}\n\n"
+     check_dependencies
     if [ -d /sdcard/Termux-Bootstrap ]; then
         printf "${yellow}Termux-Bootstrap directory found${reset}\n\n"
     else
@@ -142,6 +142,7 @@ function print-help() {
                 revert
                 ;;
     esac
+    exit
 }
 
 function switch() {
@@ -172,6 +173,7 @@ function switch() {
                 prefix
                 ;;
             esac
+            exit
             ;;
     esac
     if [ -d /sdcard/Termux-Bootstrap ]; then
@@ -190,6 +192,7 @@ function switch() {
     printf "${reset}"
     if ask "Do you want to switch to 32-bit? All data in this environment will be lost" "N";then
         printf "${yellow}[!]Switching to 32-bit installation... Continuing Anyway!${reset}\n\n"
+        check_dependencies
         sleep 5.5
         case "$(uname -m)" in
             arm64-v8a|arm64-v8|aarch64|arm64)
@@ -295,6 +298,7 @@ function revert() {
                 prefix
                 ;;
             esac
+            exit
             ;;
         armeabi|armv8l|armeabi-v7a|armv7l|i*86)
             # Ask for Confirmation
@@ -355,6 +359,7 @@ function termux_arch() {
                 prefix
                 ;;
     esac
+    exit
 }
 
 function prefix() {
@@ -405,6 +410,7 @@ function prefix() {
                 exit
                 ;;
     esac
+    exit
 }
 
 function print_banner() {
@@ -423,6 +429,21 @@ function print_banner() {
     printf "${yellow} '############### ${red}PREFIX-SWITCHER${yellow} #############'${reset}\n\n"
 }
 
+function prefix_print_banner() {
+    clear
+    printf "${light_cyan}★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★\n"
+    printf "${light_cyan}★                                               ★\n"
+    printf "${light_cyan}★   #####.  #####.  #####  #####  ###   #   #   ★\n"
+    printf "${light_cyan}★   #    #  #    #  #      #       #     # #    ★\n"
+    printf "${light_cyan}★   #####'  #####'  ####   ####    #      #     ★\n"
+    printf "${light_cyan}★   #       #  #    #      #       #     # #    ★\n"
+    printf "${light_cyan}★   #       #   #.  #####  #      ###   #   #   ★\n"
+    printf "${light_cyan}★                                               ★\n"
+    printf "${light_cyan}★                  [ SWITCHER ]                 ★\n"
+    printf "${light_cyan}★_______________________________________________★\n"
+    printf "${light_cyan}★________${green}[ Technical Shahinur_Al-Alamin ]${light_cyan}_______★\n"
+    printf "${light_cyan}*************************************************${reset}\n\n"
+}
 
 ##################################
 ##              Main            ##
@@ -436,7 +457,7 @@ light_cyan='\033[1;96m'
 reset='\033[0m'
 
 cd $HOME
-print_banner
+prefix_print_banner
 get_version
-check_dependencies
+bootstrap_dir
 prefix
