@@ -83,7 +83,7 @@ function check_dependencies() {
 }
 
 function bootstrap_dir() {
-  if ask "[?] Do you want continue..." "Y"; then
+  if ask "Do you want continue with welcome voice" "Y"; then
      printf "${yellow}Continuing Anyway${reset}\n\n"
      check_dependencies
     if [ -d /sdcard/Termux-Bootstrap ]; then
