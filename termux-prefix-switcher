@@ -1,9 +1,11 @@
 #!/data/data/com.termux/files/usr/bin/bash -e
 
 function unsupported_arch() {
+    print_banner
     printf "${red}"
     echo "[*] Unsupported Architecture"
     printf "${reset}"
+    echo "You have successfully logged out."
     exit
 }
 
@@ -36,7 +38,8 @@ function ask() {
         # Check if the reply is valid
         case "$REPLY" in
             Y*|y*) return 0 ;;
-            N*|n*) return 1 ;;
+            N*|n*) print_banner || :
+                   return 1 ;;
         esac
     done
 }
@@ -129,10 +132,12 @@ function print-help() {
                 prefix
                 ;;
             2)
+                print_banner || :
                 echo "You chose 32-bit bootstrap installer"
                 switch
                 ;;
             3)
+                print_banner || :
                 echo "You chose 64-bit Restore Backup"
                 revert
                 ;;
@@ -195,7 +200,7 @@ function switch() {
                 fi
                 if [ -z $KEEP_ARM ]; then
                     printf "${blue}[*] Downloading arm 32-bit termux bootstrap...${reset}\n"
-                    axel --output=/sdcard/Termux-Bootstrap/bootstrap-arm.zip https://github.com/hop-prog/Termux-Bootstrap/raw/main/arm/bootstrap-arm.zip
+                    axel --output=/sdcard/Termux-Bootstrap/bootstrap-arm.zip https://github.com/hop-prog/Termux-Bootstrap/raw/main/arm/bootstrap-arm.zip 2> /dev/null || :
                 fi
                 if [ -f /sdcard/Termux-Bootstrap/bootstrap-arm.zip ]; then
                     # Unpack and remove existing installation
@@ -203,7 +208,7 @@ function switch() {
 	            chmod 755 usr -R ||:
 	            rm -rf $PREFIX/../usr32-staging
 	            printf "\n${blue}[*] Extracting arm bootstrap... ${reset}\n\n"
-                    unzip -d $PREFIX/../usr32-staging /sdcard/Termux-Bootstrap/bootstrap-arm.zip
+                    unzip -d $PREFIX/../usr32-staging /sdcard/Termux-Bootstrap/bootstrap-arm.zip 2> /dev/null || :
                     scnd_stg
                 fi
                 ;;
@@ -215,7 +220,7 @@ function switch() {
                 fi
                 if [ -z $KEEP_ARM ]; then
                     printf "${blue}[*] Downloading i686 32-bit termux bootstrap...${reset}\n"
-                    axel --output=/sdcard/Termux-Bootstrap/bootstrap-i686.zip https://github.com/hop-prog/Termux-Bootstrap/raw/main/arm/bootstrap-i686.zip
+                    axel --output=/sdcard/Termux-Bootstrap/bootstrap-i686.zip https://github.com/hop-prog/Termux-Bootstrap/raw/main/arm/bootstrap-i686.zip 2> /dev/null || :
                 fi
                 if [ -f /sdcard/Termux-Bootstrap/bootstrap-i686.zip ]; then
                     # Unpack and remove existing installation
@@ -223,7 +228,7 @@ function switch() {
                     chmod 755 usr -R ||:
                     rm -rf $PREFIX/../usr32-staging
                     printf "\n${blue}[*] Extracting arm bootstrap... ${reset}\n\n"
-                    unzip -d $PREFIX/../usr32-staging /sdcard/Termux-Bootstrap/bootstrap-i686.zip
+                    unzip -d $PREFIX/../usr32-staging /sdcard/Termux-Bootstrap/bootstrap-i686.zip 2> /dev/null || :
                     scnd_stg
                 fi
                 ;;
@@ -381,10 +386,12 @@ function prefix() {
                 print-help
                 ;;
             2)
+                print_banner || :
                 echo "You chose 32-bit bootstrap installer"
                 switch
                 ;;
             3)
+                print_banner || :
                 echo "You chose 64-bit Restore Backup"
                 revert
                 ;;
@@ -393,6 +400,7 @@ function prefix() {
                 termux_arch
                 ;;
             5)
+                print_banner || :
                 echo "You have successfully logged out."
                 exit
                 ;;
@@ -401,18 +409,18 @@ function prefix() {
 
 function print_banner() {
     clear
-    printf "${yellow}  #############################################.\n"
-    printf "${yellow} ##         ${light_cyan}Technical Shahinur_Al-Amin${yellow}        '##.\n"
-    printf "${yellow}##  ${green}888888888888   .d888b.           db       ${yellow} '##\n"
-    printf "${yellow}##  ${green}     88      d88'   '88b        d88b      ${yellow}  ##\n"
-    printf "${yellow}##  ${green}     88       888     '8b      d8''8b     ${yellow}  ##\n"
-    printf "${yellow}##  ${green}     88        '88b           d8'  '8b    ${yellow}  ##\n"
-    printf "${yellow}##  ${green}     88           '88b.      d8YaaaaY8b   ${yellow}  ##\n"
-    printf "${yellow}##  ${green}     88      d8.    '88b    d8''''''''8b  ${yellow}  ##\n"
-    printf "${yellow}##  ${green}     88      d88'   .88b   d8'        '8b ${yellow}  ##\n"
-    printf "${yellow}##. ${green}     88        'd888b'    d8'          '8b${yellow}  ##\n"
-    printf "${yellow}'##.             ${light_cyan}Creator By Shahinur${yellow}           ##\n"
-    printf "${yellow} '############## ${red}PREFIX-SWITCHER${yellow} ##############${reset}\n\n"
+    printf "${yellow} .#############################################.\n"
+    printf "${yellow}.##'       ${light_cyan}Technical Shahinur_Al-Amin${yellow}        '##.\n"
+    printf "${yellow}##' ${green}888888888888   .d888b.          db       ${yellow} '##\n"
+    printf "${yellow}##  ${green}     88       d88' '88A        d88b      ${yellow}  ##\n"
+    printf "${yellow}##  ${green}     88       888   '88       d8''8b     ${yellow}  ##\n"
+    printf "${yellow}##  ${green}     88        '88b          d8'  '8b    ${yellow}  ##\n"
+    printf "${yellow}##  ${green}     88          '88b.      d8YaaaaY8b   ${yellow}  ##\n"
+    printf "${yellow}##  ${green}     88       88.  '88b    d8''''''''8b  ${yellow}  ##\n"
+    printf "${yellow}##  ${green}     88       V88' .88b   d8'        '8b ${yellow}  ##\n"
+    printf "${yellow}##. ${green}     88        'd888b'   d8'          '8b${yellow} .##\n"
+    printf "${yellow}'##.            ${light_cyan}Creator By Shahinur${yellow}          .##'\n"
+    printf "${yellow} '############### ${red}PREFIX-SWITCHER${yellow} #############'${reset}\n\n"
 }
 
 
