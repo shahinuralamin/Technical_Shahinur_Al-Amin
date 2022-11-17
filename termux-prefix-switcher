@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash -e
 
 function unsupported_arch() {
-    print_banner
+    print_prefix_banner
     printf "${red}"
     echo "[*] Unsupported Architecture"
     printf "${reset}"
@@ -195,7 +195,7 @@ function switch() {
         check_dependencies
         sleep 5.5
         case "$(uname -m)" in
-            arm64-v8a|arm64-v8|aarch64|arm64)
+            aarch64|arm64-v8a|arm64-v8|arm64)
                 unset KEEP_ARM
                 if [ -f /sdcard/Termux-Bootstrap/bootstrap-arm.zip ]; then
                     printf "${yellow}[!] Using existing arm bootstrap archive${reset}\n"
@@ -429,7 +429,7 @@ function print_banner() {
     printf "${yellow} '############### ${red}PREFIX-SWITCHER${yellow} #############'${reset}\n\n"
 }
 
-function prefix_print_banner() {
+function print_prefix_banner() {
     clear
     printf "${light_cyan}★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★\n"
     printf "${light_cyan}★                                               ★\n"
@@ -457,7 +457,7 @@ light_cyan='\033[1;96m'
 reset='\033[0m'
 
 cd $HOME
-prefix_print_banner
+print_prefix_banner
 get_version
 bootstrap_dir
 prefix
