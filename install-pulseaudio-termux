@@ -54,7 +54,12 @@ function check_dependencies() {
 }
 
 function bootstrap_dir() {
-    printf "\u001b[46m${blue}_____[ Please subscribe my youtube chennel ]______\n_________[ Technical Shahinur_Al-Amin ]___________${reset}\n\n"
+    if [ -d $HOME/storage ]; then
+        printf "\u001b[46m${blue}_____[ Please subscribe my youtube chennel ]______\n_________[ Technical Shahinur_Al-Amin ]___________${reset}\n\n"
+    else
+        printf "\u001b[46m${blue}_____[ Please subscribe my youtube chennel ]______\n_________[ Technical Shahinur_Al-Amin ]___________${reset}\n\n"
+        termux-setup-storage
+    fi
     if ask "Do you want continue with welcome voice" "Y"; then
        printf "${yellow}Continuing Anyway${reset}\n\n"
        check_dependencies
