@@ -441,7 +441,7 @@ function print_prefix_banner() {
     printf "${light_cyan}★                                               ★\n"
     printf "${light_cyan}★                  [ SWITCHER ]                 ★\n"
     printf "${light_cyan}★_______________________________________________★\n"
-    printf "${light_cyan}★________${green}[ Technical Shahinur_Al-Alamin ]${light_cyan}_______★\n"
+    printf "${light_cyan}★________[ ${green}Technical Shahinur_Al-Alamin ${light_cyan}]_______★\n"
     printf "${light_cyan}*************************************************${reset}\n\n"
 }
 
@@ -460,3 +460,4 @@ cd $HOME
 print_prefix_banner
 get_version
 bootstrap_dir
+prefix
