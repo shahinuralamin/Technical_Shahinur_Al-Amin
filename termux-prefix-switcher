@@ -405,7 +405,7 @@ function prefix() {
                 termux_arch
                 ;;
             5)
-                print_banner || :
+                print_prefix_banner || :
                 echo "You have successfully logged out."
                 exit
                 ;;
@@ -460,4 +460,3 @@ cd $HOME
 print_prefix_banner
 get_version
 bootstrap_dir
-prefix
