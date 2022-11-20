@@ -53,18 +53,14 @@ function bootstrap_dir() {
     if ask "Continue with welcome voice"; then
        printf "${yellow}Continuing Anyway${reset}\n\n"
        check_dependencies
-       if [ -d /sdcard/Termux-Bootstrap ]; then
-           printf "${yellow}Termux-Bootstrap directory found${reset}\n\n"
-       else
-           printf "${yellow}Termux-Bootstrap directory created${reset}\n\n"
-           mkdir /sdcard/Termux-Bootstrap
-       fi
+       mkdir /sdcard/Termux-Bootstrap &> /dev/null || :
        if [ -f /sdcard/Termux-Bootstrap/welcome.mp3 ];then
            printf "${green}Welcome to Tecnical Shahinur_Al-Amin${reset}\n\n"
            play-audio /sdcard/Termux-Bootstrap/welcome.mp3
        else
-           axel --output=/sdcard/Termux-Bootstrap/welcome.mp3 https://github.com/shahinuralamin/Technical_Shahinur_Al-Amin/releases/download/termux-prefix-switcher/welcome.mp3 || {
+           axel --output=/sdcard/Termux-Bootstrap/welcome.mp3 https://github.com/shahinuralamin/Technical_Shahinur_Al-Amin/releases/download/termux-prefix-switcher/welcome.mp3 &> /dev/null || {
                 printf "${red}E: Internet connection  failed ${reset}\n"
+                exit
            }
            printf "${green}Welcome to Tecnical Shahinur_Al-Amin${reset}\n\n"
            play-audio /sdcard/Termux-Bootstrap/welcome.mp3
