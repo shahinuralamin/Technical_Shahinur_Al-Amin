@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash -e
 
 VERSION=2020011601
-MODIFIED=005
+MODIFIED=006
 BASE_URL=https://kali.download/nethunter-images/current/rootfs
 VOICE_URL=https://github.com/shahinuralamin/Technical_Shahinur_Al-Amin/releases/download/install-nethunter-modified/kali_voice.tar.xz
 archcase=$(getprop ro.product.cpu.abi)
@@ -159,14 +159,14 @@ function check_dependencies() {
 
 function update() {
     printf "${yellow}Checking update...${reset}\n\n"
-    axel https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/modified 2> /dev/null || {
+    axel https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/modified &> /dev/null || {
          printf "${red}ERROR:\n Internet connection failed${reset}\n\n"
          return 0
     }
     mv modified $PREFIX/bin/modified
     while read line
     do  case $line in
-            M005)
+            M006)
                 printf "${red}[${green}√${red}] ${yellow}NetHunter installer up to date.${reset}\n\n"
                 ;;
             *)
