@@ -96,7 +96,10 @@ function bootstrap_dir() {
         printf "${green}Welcome to Tecnical Shahinur_Al-Amin${reset}\n\n"
         play-audio /sdcard/Termux-Bootstrap/welcome.mp3
     else
-        axel --output=/sdcard/Termux-Bootstrap/welcome.mp3 https://github.com/shahinuralamin/Technical_Shahinur_Al-Amin/releases/download/termux-prefix-switcher/welcome.mp3
+        axel --output=/sdcard/Termux-Bootstrap/welcome.mp3 https://github.com/shahinuralamin/Technical_Shahinur_Al-Amin/releases/download/termux-prefix-switcher/welcome.mp3 &> /dev/null || {
+             printf "${red}E: Internet connection error ${reset}\n"
+             return 0
+        }
         printf "${green}Welcome to Tecnical Shahinur_Al-Amin${reset}\n\n"
         play-audio /sdcard/Termux-Bootstrap/welcome.mp3
     fi
