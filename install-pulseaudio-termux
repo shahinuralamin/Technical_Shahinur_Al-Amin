@@ -33,8 +33,8 @@ function check_dependencies() {
         if [ -e $PREFIX/bin/$i ]; then
             echo "  $i is OK"
         else
-            printf "Installing ${i}...\n"
-            apt install -y $i || {
+            printf "\033[35;1mInstalling ${i}...${reset}\n"
+            apt reinstall -y $i || {
                 printf "${red}ERROR: Failed to install packages.\n Exiting.\n${reset}"
 	        exit
             }
@@ -75,7 +75,7 @@ function cleanup_pulseaudio() {
             echo "Pulseaudio installed files found"
         else
             echo "pulseaudio installed package file not found"
-            rm -rf $f
+            rm -rf $PREFIX/bin/pulseaudio $PREFIX/etc/pulse/default.pa $PREFIX/etc/pulse/daemon.conf $PREFIX/etc/pulse/client.conf $PREFIX/etc/pulse/system.pa
         fi
     done
 }
@@ -307,7 +307,7 @@ function create_launcher() {
     cat > $PA_LAUNCHER <<- EOF
 #!/data/data/com.termux/files/usr/bin/bash -e
 pulseaudio --start --load="module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1" --exit-idle-time=-1
-printf "\n\033[1;31;42m[  Audio streaming recever running on Pulseaudio ]\n\n\033[0m\033[1;4;35m…♪…♪…♪…♪[\033[0m  \033[1;3;35mexport PULSE_SERVER=127.0.0.1\033[0m  \033[1;4;35m]…♪…♪…♪…\033[0m\n\n"
+printf "\n\033[1;31;42m[ Audio streaming recever running on Pulseaudio ]\n\n\033[0m\033[1;4;35m…♪…♪…♪…♪[\033[0m  \033[1;3;35mexport PULSE_SERVER=127.0.0.1\033[0m  \033[1;4;35m]…♪…♪…♪…\033[0m\n\n"
 EOF
     chmod 700 $PA_LAUNCHER
 }
