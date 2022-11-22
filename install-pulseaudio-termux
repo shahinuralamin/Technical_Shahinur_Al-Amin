@@ -298,6 +298,9 @@ pulseaudio --start --load="module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth
            rm -rf $HOME/install-pulseaudio-termux
            echo "Problem of Pulseaudio"
            echo "Again installing packages"
+           apt update
+           apt-get update
+           apt upgrade -y
            apt install axel -y
            axel https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/install-pulseaudio-termux || {
                 echo "Internet connection error"
