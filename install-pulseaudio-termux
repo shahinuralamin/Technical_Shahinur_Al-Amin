@@ -294,6 +294,7 @@ function create_launcher() {
     PA_LAUNCHER=$PREFIX/bin/pa
     cat > $PA_LAUNCHER <<- EOF
 #!/data/data/com.termux/files/usr/bin/bash -e
+cd \${HOME}
 pulseaudio --start --load="module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1" --exit-idle-time=-1 &> /dev/null || {
            printf "\n\033[1;31mProblem of Pulseaudio\033[0m\n\n"
            apt update &> /dev/null
@@ -301,17 +302,14 @@ pulseaudio --start --load="module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth
            apt upgrade -y
            echo "Again installing packages"
            apt reinstall pulseaudio -y &> /dev/null ||:
-           pa || {
-              apt install axel -y &> /dev/null
-              rm -rf $HOME/install-pulseaudio-termux
-              axel --output=pulseaudioinstaller https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/install-pulseaudio-termux || {
-                   printf "\n\033[1;31mInternet connection error\033[0m\n\n"
-                   exit
-              }
+           apt install axel -y &> /dev/null
+           axel --output=$HOME/pulseaudioinstaller https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/install-pulseaudio-termux || {
+                printf "\n\033[1;31mInternet connection error\033[0m\n"
+           }
            mv pulseaudioinstaller install-pulseaudio-termux
            chmod +x install-pulseaudio-termux
            ./install-pulseaudio-termux
-           }
+           pa
 exit
 }
 printf "\n\033[1;31;42m[ Audio streaming recever running on Pulseaudio ]\033[0m\n\n"
