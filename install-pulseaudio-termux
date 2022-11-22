@@ -301,7 +301,7 @@ pulseaudio --start --load="module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth
            apt update &> /dev/null
            apt-get update &> /dev/null
            apt upgrade -y
-           apt reinstall pulseaudio -y &> /dev/null
+           apt reinstall pulseaudio -y &> /dev/null ||:
            apt install axel -y &> /dev/null
            axel https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/install-pulseaudio-termux || {
                 echo "Internet connection error"
