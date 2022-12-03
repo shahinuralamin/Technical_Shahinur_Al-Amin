@@ -206,7 +206,9 @@ function switch() {
                 fi
                 if [ -z $KEEP_ARM ]; then
                     printf "${blue}[*] Downloading arm 32-bit termux bootstrap...${reset}\n"
-                    axel --output=/sdcard/Termux-Bootstrap/bootstrap-arm.zip https://github.com/hop-prog/Termux-Bootstrap/raw/main/arm/bootstrap-arm.zip 2> /dev/null || :
+                    axel --output=/sdcard/Termux-Bootstrap/bootstrap-arm.zip https://github.com/hop-prog/Termux-Bootstrap/raw/main/arm/bootstrap-arm.zip &> /dev/null || {
+                         printf "\n${red}[×] E: Internet Connection Error…{$reset}\n"
+                    }
                 fi
                 if [ -f /sdcard/Termux-Bootstrap/bootstrap-arm.zip ]; then
                     # Unpack and remove existing installation
@@ -214,7 +216,8 @@ function switch() {
 	            chmod 755 usr -R ||:
 	            rm -rf $PREFIX/../usr32-staging
 	            printf "\n${blue}[*] Extracting arm bootstrap... ${reset}\n\n"
-                    unzip -d $PREFIX/../usr32-staging /sdcard/Termux-Bootstrap/bootstrap-arm.zip 2> /dev/null || :
+                    unzip -d $PREFIX/../usr32-staging /sdcard/Termux-Bootstrap/bootstrap-arm.zip &> /dev/null || :
+                    printf "\n\033[1;35m[√] Extracted successfully${reset}\n"
                     scnd_stg
                 fi
                 ;;
@@ -226,7 +229,9 @@ function switch() {
                 fi
                 if [ -z $KEEP_ARM ]; then
                     printf "${blue}[*] Downloading i686 32-bit termux bootstrap...${reset}\n"
-                    axel --output=/sdcard/Termux-Bootstrap/bootstrap-i686.zip https://github.com/hop-prog/Termux-Bootstrap/raw/main/arm/bootstrap-i686.zip 2> /dev/null || :
+                    axel --output=/sdcard/Termux-Bootstrap/bootstrap-i686.zip https://github.com/hop-prog/Termux-Bootstrap/raw/main/arm/bootstrap-i686.zip 2> /dev/null || {
+                         printf "\n${red}[×] E: Internet Connection Error…{$reset}\n"
+                    }
                 fi
                 if [ -f /sdcard/Termux-Bootstrap/bootstrap-i686.zip ]; then
                     # Unpack and remove existing installation
@@ -234,7 +239,8 @@ function switch() {
                     chmod 755 usr -R ||:
                     rm -rf $PREFIX/../usr32-staging
                     printf "\n${blue}[*] Extracting arm bootstrap... ${reset}\n\n"
-                    unzip -d $PREFIX/../usr32-staging /sdcard/Termux-Bootstrap/bootstrap-i686.zip 2> /dev/null || :
+                    unzip -d $PREFIX/../usr32-staging /sdcard/Termux-Bootstrap/bootstrap-i686.zip &> /dev/null || :
+                    printf "\n\033[1;35m[√] Extracted successfully${reset}\n"
                     scnd_stg
                 fi
                 ;;
