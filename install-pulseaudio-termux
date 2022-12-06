@@ -328,7 +328,7 @@ function pa_stop() {
 
 function launcher() {
     printf "\033[1;32mpulseaudio \033[1;35m"
-    read -p "$args" REPLY
+    read -p "$'$args'" REPLY
     printf "\033[0m"
     case "$REPLY" in
         start) pa_start;;
@@ -337,9 +337,9 @@ function launcher() {
     esac
 }
 
-args="\$1"
+args="1"
 
-case "$args" in
+case $"$args" in
     start) pa_start;;
     stop) pa_stop;;
     *) launcher ;;
