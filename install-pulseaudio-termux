@@ -379,4 +379,5 @@ create_launcher
 print_banner
 printf "${green}[=] Pulseaudio for Termux installed successfully${reset}\n\n"
 printf "${green}[+] To start Pulseaudio, type:${reset}\n"
-printf "${green}[+] pa             # To start Pulseaudio${reset}\n"
+printf "${green}[+] pa start       # To start Pulseaudio${reset}\n"
+printf "${green}[+] pa stop        # To stop Pulseaudio${reset}\n"
