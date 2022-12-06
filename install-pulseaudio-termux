@@ -327,8 +327,19 @@ function pa_stop() {
 }
 
 function launcher() {
+    if [ "${2:-}" = "start" ]; then
+            default=start
+    elif [ "${2:-}" = "stop" ]; then
+            default=stop
+    else
+            default=
+    fi
     printf "\033[1;32mpulseaudio \033[1;35m"
     read -p "\$1" REPLY
+    # Default?
+    if [ -z "$REPLY" ]; then
+         REPLY=$default
+    fi
     printf "\033[0m"
     case "\$REPLY" in
         start) pa_start;;
