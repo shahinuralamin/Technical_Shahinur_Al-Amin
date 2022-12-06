@@ -328,7 +328,7 @@ function pa_stop() {
 
 function launcher() {
     printf "\033[1;32mpulseaudio \033[1;35m"
-    read -p ""\$1"" REPLY
+    read -p "'\$1'" REPLY
     printf "\033[0m"
     case "$REPLY" in
         start) pa_start;;
