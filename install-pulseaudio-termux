@@ -311,7 +311,7 @@ function pa_start() {
                mv pulseaudioinstaller install-pulseaudio-termux
                chmod +x install-pulseaudio-termux
                ./install-pulseaudio-termux
-               pa
+               pa_start
                exit
     }
     printf "\n\033[1;31;42m[ Audio streaming recever running on Pulseaudio ]\033[0m\n\n"
