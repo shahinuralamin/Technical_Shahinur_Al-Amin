@@ -326,51 +326,10 @@ function pa_stop() {
     printf "\n\033[1;31;42m[ Pulseaudio streaming recever stoped ]\033[0m\n\n"
 }
 
-function launcher() {
-    HEIGHT=21
-    WIDTH=39
-    CHOICE_HEIGHT=4
-    BACKTITLE="Technical Shahinur_Al-Amin"
-    TITLE="Pulseaudio"
-    MENU="Allows to Option: start - Audio streaming recever running & Options: stop - Pulseaudio is stoped"
-
-
-    OPTIONS=(1 " Start"
-             2 " Stop "
-             3 ">Exit<")
-
-    CHOICE=$(dialog --clear \
-                    --backtitle "$BACKTITLE" \
-                    --title "$TITLE" \
-                    --menu "$MENU" \
-                    $HEIGHT $WIDTH $CHOICE_HEIGHT \
-                    "${OPTIONS[@]}" \
-                    2>&1 >/dev/tty)
-
-    clear
-    case $CHOICE in
-            1)
-                echo "You chose Pulseaudio start"
-                pa_start
-                ;;
-            2)
-                print_banner || :
-                echo "You chose Pulseaudio stop"
-                pa_stop
-                ;;
-            3)
-                print_banner || :
-                echo "You have successfully logged out."
-                exit
-                ;;
-    esac
-    exit
-}
-
 case "\$1" in
     start) pa_start;;
     stop) pa_stop;;
-    *) launcher ;;
+    *) pa_start;;
 esac
 EOF
     chmod 700 $PA_LAUNCHER
