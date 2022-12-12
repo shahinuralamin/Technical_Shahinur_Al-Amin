@@ -193,6 +193,10 @@ function switch() {
     echo "* This Script will not track what packages you've installed, so you will need to reinstall them again if possible"
     echo "The Installation will begin in 5 seconds, please save all your work to avoid data loss"
     printf "${reset}"
+    if [ -e $PREFIX/../usr32-backup ]; then
+            revert32
+            exit
+    fi
     if ask "Do you want to switch to 32-bit? All data in this environment will be lost" "N";then
         printf "${yellow}[!]Switching to 32-bit installation... Continuing Anyway!${reset}\n\n"
         check_dependencies
@@ -206,14 +210,14 @@ function switch() {
                 fi
                 if [ -z $KEEP_ARM ]; then
                     printf "${blue}[*] Downloading arm 32-bit termux bootstrap...${reset}\n"
-                    axel --output=/sdcard/Termux-Bootstrap/bootstrap-arm.zip https://github.com/hop-prog/Termux-Bootstrap/raw/main/arm/bootstrap-arm.zip &> /dev/null || {
+                    axel --output=/sdcard/Termux-Bootstrap/bootstrap-arm.zip https://github.com/hop-prog/Termux-Bootstrap/raw/main/arm/bootstrap-arm.zip 2> /dev/null || {
                          printf "\n${red}[×] E: Internet Connection Error…{$reset}\n"
                     }
                 fi
                 if [ -f /sdcard/Termux-Bootstrap/bootstrap-arm.zip ]; then
                     # Unpack and remove existing installation
                     sleep 3
-	            chmod 755 usr -R ||:
+	            chmod 755 usr -R &> /dev/null ||:
 	            rm -rf $PREFIX/../usr32-staging
 	            printf "\n${blue}[*] Extracting arm bootstrap... ${reset}\n\n"
                     unzip -d $PREFIX/../usr32-staging /sdcard/Termux-Bootstrap/bootstrap-arm.zip &> /dev/null || :
@@ -236,7 +240,7 @@ function switch() {
                 if [ -f /sdcard/Termux-Bootstrap/bootstrap-i686.zip ]; then
                     # Unpack and remove existing installation
                     sleep 3
-                    chmod 755 usr -R ||:
+                    chmod 755 usr -R &> /dev/null ||:
                     rm -rf $PREFIX/../usr32-staging
                     printf "\n${blue}[*] Extracting arm bootstrap... ${reset}\n\n"
                     unzip -d $PREFIX/../usr32-staging /sdcard/Termux-Bootstrap/bootstrap-i686.zip &> /dev/null || :
@@ -264,6 +268,7 @@ function scnd_stg() {
      cat > $PREFIX/../secondstage-setup.sh <<- EOM
      #!/system/bin/sh
      echo "[*] Creating Backup"
+     rm -rf usr64-backup
      mv usr usr64-backup
      echo "[*] Switching"
      mv usr32-staging usr
@@ -316,15 +321,20 @@ function revert() {
                cd $PREFIX/..
                # Check if Backup File Exists
 	       if [ ! -e usr64-backup ]; then
-                        echo "[!] The Backup Directory isn't exists.. Continuing Anyway!"
+                        echo "[!] The Backup Directory isn't exists maybe."
+                        echo "Or your device is not supported"
+                        prefix
+                        exit
 	       fi
 
                # Revert Back to 64-bit
                echo "[*] Purging 32-bit environment"
 	       cat > purge-prefix.sh <<- EOM
 	       #!/system/bin/sh
-	       chmod 755 usr -R ||:
-	       rm -rf usr
+               echo "[*] Creating Backup"
+               chmod 755 usr -R &> /dev/null ||:
+               rm -rf usr32-backup
+	       mv usr usr32-backup
 
 	       # Restore Backup directory if possible"
 	       if [ -e usr64-backup ]; then
@@ -344,6 +354,36 @@ EOM
                exec /system/bin/env -i ./purge-prefix.sh
             fi
     esac
+}
+
+function revert32() {
+            # Ask for Confirmation
+            if ask "Do you want to switch back to 32-bit? All data in this environment will be lost" "N"; then
+               printf "${yellow}[#] Switch back to 32-bit mode${reset}\n\n"
+               cd $PREFIX/..
+               # Revert Back to 32-bit
+               echo "[*] Purging 64-bit environment"
+	       cat > purge-prefix32.sh <<- EOM
+	       #!/system/bin/sh
+	       echo "[*] Creating Backup"
+               rm -rf usr64-backup
+               mv usr usr64-backup
+	       # Restore Backup directory if possible"
+	       if [ -e usr32-backup ]; then
+	              echo "[*] Restoring 32-bit Prefix"
+		      mv usr32-backup usr
+	       fi
+	       rm -rf purge-prefix32.sh
+               echo "[✓] Done, Please Close and Reopen the app"
+               sleep 2
+               kill -KILL $PPID
+EOM
+               chmod 755 purge-prefix32.sh
+
+               # Kill Current Process and Purge 32-bit prefix
+               exec /system/bin/env -i ./purge-prefix32.sh
+            fi
+            exit
 }
 
 function termux_arch() {
@@ -379,11 +419,11 @@ function prefix() {
     TITLE="Termux Prefix Switcher (version 1.3)"
     MENU="See [termux-prefix-switcher help] for more information"
 
-    OPTIONS=(1 " *Help*    "
-             2 " Switch    "
-             3 " Revert    "
-             4 " check-arch"
-             5 ">  Exit   <")
+    OPTIONS=(1 "*  Help       *"
+             2 "*  Switch     *"
+             3 "*  Revert     *"
+             4 "*  check-arch *"
+             5 "*  > Exit <   *")
 
     CHOICE=$(dialog --clear \
                     --backtitle "$BACKTITLE" \
@@ -466,7 +506,20 @@ light_cyan='\033[1;96m'
 reset='\033[0m'
 
 cd $HOME
-print_prefix_banner
-get_version
-bootstrap_dir
-prefix
+case "$1" in
+	help|Help|HELP)
+		print-help
+		;;
+	switch|Switch|SWITCH)
+		switch
+		;;
+	revert|Revert|REVERT)
+		revert
+		;;
+	*)
+		print_prefix_banner
+                get_version
+                bootstrap_dir
+                prefix
+		;;
+esac
