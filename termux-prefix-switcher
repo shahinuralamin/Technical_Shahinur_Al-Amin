@@ -315,17 +315,26 @@ function revert() {
             exit
             ;;
         armeabi|armv8l|armeabi-v7a|armv7l|i*86)
+            if [ ! -e usr64-backup ]; then
+                     printf "${red}"
+                     echo "[!] The Backup Directory isn't exists."
+                     echo "    Or your device is unsupported maybe."
+                     printf "${reset}\n\n"
+                     echo "If you think you have a problem with termux prefix"
+                     echo "And if your device architecture is 64-bit then you can delete termux prefix usr."
+                     echo "And all data in this environment will be lost"
+                     if ask "Do you want delete termux prefix-usr" "N"; then
+                        echo "    Deleting....."
+                        rm -rf $PREFIX/../usr
+                        echo "[✓] Done, Please Close and Reopen the app"
+                        kill -KILL $PPID
+                     fi
+                     exit
+            fi
             # Ask for Confirmation
             if ask "Do you want to switch back to 64-bit? All data in this environment will be lost" "N"; then
                printf "${yellow}[#] Switch back to 64-bit mode${reset}\n\n"
                cd $PREFIX/..
-               # Check if Backup File Exists
-	       if [ ! -e usr64-backup ]; then
-                        echo "[!] The Backup Directory isn't exists maybe."
-                        echo "Or your device is not supported"
-                        prefix
-                        exit
-	       fi
 
                # Revert Back to 64-bit
                echo "[*] Purging 32-bit environment"
