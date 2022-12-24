@@ -607,7 +607,7 @@ function start-kex() {
         SCREEN=":1"
     fi
     get_gnu
-    export HOME=\${HOME}; export USER=\${USR}; export PULSE_SERVER=127.0.0.1 ; LD_PRELOAD=${GNU} nohup vncserver \$SCREEN >/dev/null 2>&1 </dev/null
+    export HOME=\${HOME}; export USER=\${USR}; export PULSE_SERVER=127.0.0.1 ; LD_PRELOAD=\${GNU} nohup vncserver \$SCREEN >/dev/null 2>&1 </dev/null
     starting_kex=1
     return 0
 }
