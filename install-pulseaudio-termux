@@ -321,7 +321,7 @@ function pa_start() {
 
 function pa_stop() {
     pulseaudio --kill &> /dev/null || {
-               printf "\n\033[1;31m[!] Pulseaudio is not running\033[0m\n\n"
+               printf "\n\033[1;31m[!] Pulseaudio is not running.\n    Please try again...\033[0m\n\n"
                auto-0
                exit
     }
