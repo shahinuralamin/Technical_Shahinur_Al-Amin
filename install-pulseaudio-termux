@@ -1,23 +1,10 @@
 #!/data/data/com.termux/files/usr/bin/bash -e
 
 function ask() {
-    # http://djm.me/ask
     while true; do
-        prompt="Enter"
-        default=
-
-        # Ask the question
         printf "${light_cyan}\n[?] "
-        read -p "$1 [$prompt] " REPLY
-
-        # Default?
-        if [ -z "$REPLY" ]; then
-            REPLY=$default
-        fi
-
+        read -p "$1 [Enter] " REPLY
         printf "${reset}"
-
-        # Check if the reply is valid
         case "$REPLY" in
             *) return 0 ;;
         esac
@@ -43,6 +30,19 @@ function check_dependencies() {
     apt upgrade -y
 }
 
+function ad() {
+     REQUEST='_____[ Please subscribe my youtube chennel ]_____'
+     CHENNEL='__________[ Technical Shahinur_Al-Amin ]__________'
+     for i in {1..66}; do
+     echo -ne "\r${yellow}${REQUEST:0:$i}${reset}"
+     sleep .03
+     done
+     for j in {1..55}; do
+     echo -ne "\r\033[1;31;42m${CHENNEL:0:$j}${reset}"
+     sleep .03
+     done
+}
+
 function bootstrap_dir() {
     if [ -d $HOME/storage ]; then
         printf "\u001b[46m${blue}_____[ Please subscribe my youtube chennel ]______\n__________[ Technical Shahinur_Al-Amin ]__________${reset}\n\n"
@@ -59,8 +59,9 @@ function bootstrap_dir() {
            play-audio /sdcard/Termux-Bootstrap/welcome.mp3
        else
            axel --output=/sdcard/Termux-Bootstrap/welcome.mp3 https://github.com/shahinuralamin/Technical_Shahinur_Al-Amin/releases/download/termux-prefix-switcher/welcome.mp3 &> /dev/null || {
-                printf "${red}E: Internet connection  failed ${reset}\n"
-                exit
+                printf "${red}E: Internet connection failed ${reset}\n\n"
+                printf "${green}Welcome to Tecnical Shahinur_Al-Amin${reset}\n\n"
+                return 0
            }
            printf "${green}Welcome to Tecnical Shahinur_Al-Amin${reset}\n\n"
            play-audio /sdcard/Termux-Bootstrap/welcome.mp3
@@ -68,8 +69,27 @@ function bootstrap_dir() {
     fi
 }
 
+function timer() {
+    seconds=3
+    start="$(($(date +%s) + $seconds))"
+    while [ "$start" -ge `date +%s` ]; do
+        time="$(( $start - `date +%s` ))"
+        printf "${blue} [*] Configuring Pulseaudio...${reset}"; printf '%s\r' "$(date -u -d " @$time" +%S)"
+    done
+    echo "Please wait.............................."
+}
+
+
 function config_pulseaudio() {
-    printf "${blue}[*] Configuring Pulseaudio...${reset}\n\n"
+    ad;timer
+    printf "${light_cyan}[*] Processing Pulseaudio...${reset}\n"
+    BAR='(~) Loading...[##################################'   # this is full bar, e.g. 20 chars
+    BAG='…………………………………………………………………………………………………………………………………]'
+    echo -ne "\r$BAG"
+    for i in {1..70}; do
+    echo -ne "\r${BAR:0:$i}" # print $i chars of $BAR from 0 position
+    sleep .025               # wait 175ms between "frames"
+    done
     DEFAULT_PA=$PREFIX/etc/pulse/default.pa
     cat > $DEFAULT_PA <<- EOF
 #!/data/data/com.termux/files/usr/bin/pulseaudio -nF
