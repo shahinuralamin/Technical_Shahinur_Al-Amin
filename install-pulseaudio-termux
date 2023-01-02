@@ -70,7 +70,7 @@ function bootstrap_dir() {
 }
 
 function timer() {
-    seconds=3
+    seconds=2
     start="$(($(date +%s) + $seconds))"
     while [ "$start" -ge `date +%s` ]; do
         time="$(( $start - `date +%s` ))"
@@ -84,11 +84,11 @@ function config_pulseaudio() {
     ad;timer
     printf "${light_cyan}[*] Processing Pulseaudio...${reset}\n"
     BAR='(~) Loading...[##################################'   # this is full bar, e.g. 20 chars
-    BAG='…………………………………………………………………………………………………………………………………]'
+    BAG='(~) Loading...[…………………………………………………………………………………………]'
     echo -ne "\r$BAG"
-    for i in {1..70}; do
+    for i in {1..75}; do
     echo -ne "\r${BAR:0:$i}" # print $i chars of $BAR from 0 position
-    sleep .025               # wait 175ms between "frames"
+    sleep .03                # wait 225ms between "frames"
     done
     DEFAULT_PA=$PREFIX/etc/pulse/default.pa
     cat > $DEFAULT_PA <<- EOF
