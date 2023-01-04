@@ -74,21 +74,19 @@ function timer() {
     start="$(($(date +%s) + $seconds))"
     while [ "$start" -ge `date +%s` ]; do
         time="$(( $start - `date +%s` ))"
-        printf "${blue} [*] Configuring Pulseaudio...${reset}"; printf '%s\r' "$(date -u -d " @$time" +%S)"
+        printf '%s\r' "    Please wait... ($(date -u -d " @$time" +%S))"
     done
-    echo "Please wait.............................."
 }
 
-
 function config_pulseaudio() {
-    ad;timer
-    printf "${light_cyan}[*] Processing Pulseaudio...${reset}\n"
+    ad; printf "${blue}[*] Configuring Pulseaudio...${reset}\n"
+    timer; printf "\n${light_cyan}[*] Processing Pulseaudio...${reset}\n"
     BAR='(~) Loading...[##################################'   # this is full bar, e.g. 20 chars
-    BAG='(~) Loading...[…………………………………………………………………………………………]'
-    echo -ne "\r$BAG"
-    for i in {1..75}; do
+    GRA='               …………………………………………………………………………………………]'
+    echo -ne "\r$GRA"
+    for i in {15..80}; do
     echo -ne "\r${BAR:0:$i}" # print $i chars of $BAR from 0 position
-    sleep .03                # wait 225ms between "frames"
+    sleep .08                # wait 640ms between "frames"
     done
     DEFAULT_PA=$PREFIX/etc/pulse/default.pa
     cat > $DEFAULT_PA <<- EOF
@@ -315,7 +313,6 @@ function create_launcher() {
     cat > $PA_LAUNCHER <<- EOF
 #!/data/data/com.termux/files/usr/bin/bash -e
 cd \${HOME}
-
 function pa_start() {
     pulseaudio --start --load="module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1" --exit-idle-time=-1 &> /dev/null || {
                printf "\n\033[1;31mProblem of Pulseaudio\033[0m\n\n"
