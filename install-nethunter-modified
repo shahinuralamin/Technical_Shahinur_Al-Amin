@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash -e
 
 VERSION=2020011601
-MODIFIED=008
+MODIFIED=009
 BASE_URL=https://kali.download/nethunter-images/current/rootfs
 VOICE_URL=https://github.com/shahinuralamin/Technical_Shahinur_Al-Amin/releases/download/install-nethunter-modified/kali_voice.tar.xz
 archcase=$(getprop ro.product.cpu.abi)
@@ -166,7 +166,7 @@ function update() {
     mv modified $PREFIX/bin/modified
     while read line
     do  case $line in
-            M008)
+            M009)
                 printf "${red}[${green}√${red}] ${yellow}NetHunter installer up to date.${reset}\n\n"
                 ;;
             *)
@@ -425,6 +425,7 @@ function get_url() {
 }
 
 function get_rootfs() {
+    cd $HOME
     unset KEEP_IMAGE
     if [ -f ${IMAGE_NAME} ]; then
         if ask "Existing image file found. Delete and download a new one ?" "N"; then
@@ -586,7 +587,7 @@ function create_kex_launcher() {
     cat > $KEX_LAUNCHER <<- EOF
 #!/bin/bash
 function get_gnu() {
-   case $(uname -m) in
+   case \$(uname -m) in
         arm64-v8a|arm64-v8|aarch64|arm64)
             GNU=/usr/lib/aarch64-linux-gnu/libgcc_s.so.1
             ;;
