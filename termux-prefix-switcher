@@ -120,9 +120,9 @@ function print-help() {
     MENU="Allows to switch 32-bit termux environment on 64-bit devices Options: help - show this help switch - Switches to 32-bit Mode revert - Reverts to 64-bit Mode (This Uninstalls 32-bit prefix) NOTE: Switching to 32-bit will not install packages automatically so you have to install them again if possible."
 
 
-    OPTIONS=(1 "[Home]"
-             2 "Switch"
-             3 "Revert")
+    OPTIONS=(1 "[ Home ]"
+             2 " Switch "
+             3 " Revert ")
 
     CHOICE=$(dialog --clear \
                     --backtitle "$BACKTITLE" \
@@ -163,7 +163,7 @@ function switch() {
             MENU="Cannot Switch Environment: Your device is running in 32-bit"
 
 
-            OPTIONS=(1 "[Home]")
+            OPTIONS=(1 "[ Home ]")
 
             CHOICE=$(dialog --clear \
                             --backtitle "$BACKTITLE" \
@@ -189,23 +189,21 @@ function switch() {
         printf "${yellow}Termux-Bootstrap directory created${reset}\n\n"
         mkdir /sdcard/Termux-Bootstrap
     fi
-    printf "${light_cyan}\n"
-    read -p "Some warning message view in press [Enter] $1"
-    printf "${reset}"
-    case $1 in
-        *) ;;
-    esac
-    printf "\n${green}"
-    echo "WARNING: You are about to enter the world of 32-bit, here's what you will expect when entering to 32-bit"
-    echo "* Inconsistency will occur when running 64-bit on 32-bit environment, in some cases with the preloaded termux-exec library, you can usually unset it"
-    echo "* When Running Chromium in 32-bit proot'ed linux environment, expect segmentation failures (even with --no-sandbox) option,"
-    echo "* This Script will not track what packages you've installed, so you will need to reinstall them again if possible"
-    echo "The Installation will begin in 5 seconds, please save all your work to avoid data loss"
+    printf "${light_cyan}"
+    read -p "Some warning message view in press [Enter]"
     printf "${reset}"
     if [ -e $PREFIX/../usr32-backup ]; then
-            revert32
-            exit
+            printf "${yellow}[√] Arm 32-bit usr backup found${reset}\n\n"
+            printf "${green}[★] Maybe you are already read warning message.${reset}"
+            printf "${light_cyan}\n"
+            read -p "$1[?] Do you want to read again this?... [y/N] " REPLY
+            printf "${reset}"
+            case "$REPLY" in
+                Y*|y*) warning_msg;revert32;exit;;
+                N*|n*|*) revert32;exit;;
+            esac
     fi
+    warning_msg
     if ask "Do you want to switch to 32-bit? All data in this environment will be lost" "N";then
         printf "${yellow}[!]Switching to 32-bit installation... Continuing Anyway!${reset}\n\n"
         check_dependencies
@@ -263,6 +261,17 @@ function switch() {
         esac
     fi
 }
+
+function warning_msg() {
+    printf "\n${green}"
+    echo "WARNING: You are about to enter the world of 32-bit, here's what you will expect when entering to 32-bit"
+    echo "* Inconsistency will occur when running 64-bit on 32-bit environment, in some cases with the preloaded termux-exec library, you can usually unset it"
+    echo "* When Running Chromium in 32-bit proot'ed linux environment, expect segmentation failures (even with --no-sandbox) option,"
+    echo "* This Script will not track what packages you've installed, so you will need to reinstall them again if possible"
+    echo "The Installation will begin in 5 seconds, please save all your work to avoid data loss"
+    printf "${reset}"
+}
+
 function scnd_stg() {
      # Process Symlinks
      echo "[*] Processing Symlinks"
@@ -304,7 +313,7 @@ function revert() {
             MENU="This option is used to switching back to 64-bit, you're already 64-bit"
 
 
-            OPTIONS=(1 "[Home]")
+            OPTIONS=(1 "[ Home ]")
 
             CHOICE=$(dialog --clear \
                             --backtitle "$BACKTITLE" \
@@ -377,7 +386,7 @@ EOM
 
 function revert32() {
             # Ask for Confirmation
-            if ask "Do you want to switch back to 32-bit? All data in this environment will be lost" "N"; then
+            if ask "Do you want to switch back to 32-bit?" "N"; then
                printf "${yellow}[#] Switch back to 32-bit mode${reset}\n\n"
                cd $PREFIX/..
                # Revert Back to 32-bit
@@ -411,8 +420,8 @@ function termux_arch() {
     CHOICE_HEIGHT=4
     BACKTITLE="Al-Amin Zone"
     TITLE="Termux Prefix Switcher (version 1.3)"
-    MENU="Your termux current architecture $(uname -m)"
-    OPTIONS=(1 "[Home]")
+    MENU="Your termux current architecture is $(uname -m)"
+    OPTIONS=(1 "[ Home ]")
     CHOICE=$(dialog --clear \
                     --backtitle "$BACKTITLE" \
                     --title "$TITLE" \
