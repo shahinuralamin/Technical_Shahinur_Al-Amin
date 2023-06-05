@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash -e
 
 VERSION=2020011601
-MODIFIED=009
+MODIFIED=010
 BASE_URL=https://kali.download/nethunter-images/current/rootfs
 VOICE_URL=https://github.com/shahinuralamin/Technical_Shahinur_Al-Amin/releases/download/install-nethunter-modified/kali_voice.tar.xz
 archcase=$(getprop ro.product.cpu.abi)
@@ -84,7 +84,7 @@ function set_strings() {
     VOICE5=praise_be_to_God.mp3
     VOICE6=congratulations.mp3
     VOICE7=Kali_NetHunter_for_Termux_installed_successfully.wav
-    VOICE8=Modified_By_Tecnical_Shahinur_Al_Amin.wav
+    VOICE8=Modified_by_Al-Amin_Zone.mp3
     VOICE9=xp_folder_open_sound.mp3
     VOICE10=Using_Pulseaudio.wav
     VOICE11=Configuring_Pulseaudio.wav
@@ -132,16 +132,29 @@ function cleanup() {
     fi
 }
 
+function setup_storage() {
+    termux-setup-storage
+    read -p " [#] Check the Termux storage permission. [Enter]"
+    if [ -e $HOME/storage ]; then
+        echo "  Termux storage setup is OK"
+    else
+        read -p " [!] Please allow the Storage permission. [Enter]"
+        setup_storage
+    fi
+}
+
 function check_dependencies() {
-    printf "${blue}\n[*] Checking package dependencies...${reset}\n"
+    printf "${blue}\n[*] Checking package dependencies...\n"
     ## Workaround for termux-app issue #1283 (https://github.com/termux/termux-app/issues/1283)
     ##apt update -y &> /dev/null
     apt-get update -y &> /dev/null || apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" dist-upgrade -y &> /dev/null
     if [ -e $HOME/storage ]; then
+        printf "${reset}"
         echo "  Storage is OK"
     else
-        printf "Configuring termux setup storage...\n"
-        termux-setup-storage
+        read -p "____Configuring termux setup storage.  [Enter]"
+        printf "${reset}\n"
+        setup_storage
     fi
     for i in proot axel tar pulseaudio play-audio; do
         if [ -e $PREFIX/bin/$i ]; then
@@ -154,7 +167,16 @@ function check_dependencies() {
             }
         fi
     done
-    apt upgrade -y
+    printf "\033[1;35mapt upgrade starting...\n"
+    apt upgrade -y || {
+        printf "\n${red}ERROR: Failed to upgrade packages.\n_______Please check the internet connection.\n\n"
+        read -p "$1[?] Do you want continue any way or exit ? [c/E] " ANS
+        printf "\n${reset}"
+        case "$ANS" in
+        c*|C*) echo "Continuing any way.";return 0;;
+        e|E|*) echo "You have successfully loged out.";exit;;
+        esac
+    }
 }
 
 function update() {
@@ -166,7 +188,7 @@ function update() {
     mv modified $PREFIX/bin/modified
     while read line
     do  case $line in
-            M009)
+            M010)
                 printf "${red}[${green}√${red}] ${yellow}NetHunter installer up to date.${reset}\n\n"
                 ;;
             *)
@@ -545,6 +567,7 @@ cmdline="proot \\
         -b /dev \\
         -b /proc \\
         -b /sdcard \\
+        -b /storage/emulated/0 \\
         -b $CHROOT\$home:/dev/shm \\
         -w \$home \\
            /usr/bin/env -i \\
@@ -803,19 +826,19 @@ function link() {
         mkdir $CHROOT/home/kali/Desktop
     fi
     unset KEEP_LINK
-    if [ -f $CHROOT/home/kali/Desktop/Technical_Shahinur_Al_Amin.desktop ]; then
+    if [ -f $CHROOT/home/kali/Desktop/Al_Amin_Zone.desktop ]; then
         KEEP_LINK=1
     fi
     if [ -z $KEEP_LINK ]; then
-        ALAMIN=$CHROOT/home/kali/Desktop/Technical_Shahinur_Al_Amin.desktop
+        ALAMIN=$CHROOT/home/kali/Desktop/Al_Amin_Zone.desktop
         cat > $ALAMIN <<- EOF
 [Desktop Entry]
 Version=1.0
 Type=Link
-Name=Technical_Shahinur_Al-Amin
+Name=Al-Amin_Zone
 Comment=
-Icon=/sdcard/kali_voice/Technical_Shahinur_Al_Amin.jpeg
-URL=https://www.youtube.com/channel/UC62IBH3tn8oR1ABGK63ItVQ
+Icon=/sdcard/kali_voice/Al_Amin_Zone.png
+URL=https://youtube.com/@al-amin_zone
 EOF
     chmod 700 $ALAMIN
     fi
@@ -841,7 +864,7 @@ function alhamdulillah() {
 function print_banner() {
     clear
     printf "${yellow}##################################################\n"
-    printf "${yellow}##         ${light_cyan}Technical Shahinur_Al-Amin${yellow}           ##\n"
+    printf "${yellow}##                ${light_cyan}Al-Amin Zone${yellow}                  ##\n"
     printf "${yellow}##  ${red}88      a8P         db        88        88${yellow}  ##\n"
     printf "${yellow}##  ${red}88    .88'         d88b       88        88${yellow}  ##\n"
     printf "${yellow}##  ${red}88   88'          d8''8b      88        88${yellow}  ##\n"
@@ -850,7 +873,7 @@ function print_banner() {
     printf "${yellow}##  ${red}88P   Y8b      d8''''''''8b   88        88${yellow}  ##\n"
     printf "${yellow}##  ${red}88     '88.   d8'        '8b  88        88${yellow}  ##\n"
     printf "${yellow}##  ${red}88       Y8b d8'          '8b 888888888 88${yellow}  ##\n"
-    printf "${yellow}##               ${blue}Moded By Shahinur${yellow}              ##\n"
+    printf "${yellow}##           ${blue}Moded By Shahinur Al-Amin${yellow}          ##\n"
     printf "${yellow}####  ############## ${green}NetHunter${yellow} #############  ####${reset}\n\n"
 }
 
