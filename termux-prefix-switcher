@@ -148,6 +148,7 @@ function print-help() {
 }
 
 function setup_storage() {
+    printf "\n\n${green}Please send 'y' command & then press 'Enter'.\nOr, Allow the storage permission.${reset}\n"
     termux-setup-storage ||:
     read -p " [#] Check the Termux storage permission. [Enter]"
     if [ -e $HOME/storage ]; then
@@ -252,7 +253,11 @@ function switch() {
 	            chmod 755 usr -R &> /dev/null ||:
 	            rm -rf $PREFIX/../usr32-staging
 	            printf "\n${blue}[*] Extracting arm bootstrap... ${reset}\n\n"
-                    unzip -d $PREFIX/../usr32-staging /sdcard/Termux-Bootstrap/bootstrap-arm.zip &> /dev/null || :
+                    unzip -d $PREFIX/../usr32-staging /sdcard/Termux-Bootstrap/bootstrap-arm.zip &> /dev/null || {
+                         echo "Bootstrap not found"
+                         setup_storage
+                         switch
+                    }
                     printf "\n\033[1;35m[√] Extracted successfully${reset}\n"
                     scnd_stg
                 fi
@@ -275,7 +280,11 @@ function switch() {
                     chmod 755 usr -R &> /dev/null ||:
                     rm -rf $PREFIX/../usr32-staging
                     printf "\n${blue}[*] Extracting arm bootstrap... ${reset}\n\n"
-                    unzip -d $PREFIX/../usr32-staging /sdcard/Termux-Bootstrap/bootstrap-i686.zip &> /dev/null || :
+                    unzip -d $PREFIX/../usr32-staging /sdcard/Termux-Bootstrap/bootstrap-i686.zip &> /dev/null || {
+                         echo "Bootstrap not found"
+                         setup_storage
+                         switch
+                    }
                     printf "\n\033[1;35m[√] Extracted successfully${reset}\n"
                     scnd_stg
                 fi
