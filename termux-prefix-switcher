@@ -57,7 +57,7 @@ function get_version() {
                 echo "  Storage is OK"
             else
                 printf "Configuring termux setup storage...\n"
-                termux-setup-storage
+                setup_storage
             fi
             ;;
     esac
@@ -79,7 +79,7 @@ function check_dependencies() {
             }
         fi
     done
-    printf "\033[1;35mapt upgrade starting...\n"
+    printf "\033[1;35mapt upgrade starting...${reset}\n"
     apt upgrade -y || {
         printf "\n${red}ERROR: Failed to upgrade packages.\n_______Please check the internet connection.\n_______Exiting______.\n${reset}"
         echo "Continue anyway..."
@@ -90,12 +90,7 @@ function bootstrap_dir() {
   if ask "Do you want continue with welcome voice" "Y"; then
      printf "${yellow}Continuing Anyway${reset}\n\n"
      check_dependencies
-    if [ -d /sdcard/Termux-Bootstrap ]; then
-        printf "${yellow}Termux-Bootstrap directory found${reset}\n\n"
-    else
-        printf "${yellow}Termux-Bootstrap directory created${reset}\n\n"
-        mkdir /sdcard/Termux-Bootstrap
-    fi
+     check_Bootstrap_directory
     if [ -f /sdcard/Termux-Bootstrap/welcome.mp3 ];then
         printf "${green}Welcome to Al-Amin Zone${reset}\n\n"
         play-audio /sdcard/Termux-Bootstrap/welcome.mp3
@@ -152,6 +147,41 @@ function print-help() {
     exit
 }
 
+function setup_storage() {
+    termux-setup-storage ||:
+    read -p " [#] Check the Termux storage permission. [Enter]"
+    if [ -e $HOME/storage ]; then
+        echo "  Termux storage setup is OK"
+        Bootstrap_directory
+        echo "check storage" >> /sdcard/Termux-Bootstrap/.Al-Amin_Zone || {
+            setup_storage
+        }
+    else
+        read -p " [!] Please allow the Storage permission. [Enter]"
+        setup_storage
+    fi
+}
+
+function Bootstrap_directory() {
+    if [ ! -d /sdcard/Termux-Bootstrap ]; then
+        printf "${yellow}Termux-Bootstrap directory creating${reset}\n\n"
+        mkdir /sdcard/Termux-Bootstrap &> /dev/null || {
+             setup_storage
+        }
+    fi
+}
+
+function check_Bootstrap_directory() {
+    if [ -d /sdcard/Termux-Bootstrap ]; then
+        printf "${yellow}Termux-Bootstrap directory found${reset}\n\n"
+        echo "check storage" >> /sdcard/Termux-Bootstrap/.Al-Amin_Zone || {
+            setup_storage
+        }
+    else
+        Bootstrap_directory
+    fi
+}
+
 function switch() {
     case "$(uname -m)" in
         armeabi|armv8l|armeabi-v7a|armv7l|i*86)
@@ -183,12 +213,7 @@ function switch() {
             exit
             ;;
     esac
-    if [ -d /sdcard/Termux-Bootstrap ]; then
-        printf "${yellow}Termux-Bootstrap directory found${reset}\n\n"
-    else
-        printf "${yellow}Termux-Bootstrap directory created${reset}\n\n"
-        mkdir /sdcard/Termux-Bootstrap
-    fi
+    check_Bootstrap_directory
     printf "${light_cyan}"
     read -p "Some warning message view in press [Enter]"
     printf "${reset}"
