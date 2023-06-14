@@ -137,12 +137,10 @@ function print-help() {
                 prefix
                 ;;
             2)
-                print_banner || :
                 echo "You chose 32-bit bootstrap installer"
                 switch
                 ;;
             3)
-                print_banner || :
                 echo "You chose 64-bit Restore Backup"
                 revert
                 ;;
@@ -217,6 +215,7 @@ function switch() {
             exit
             ;;
     esac
+    print_banner
     check_Bootstrap_directory
     printf "${light_cyan}"
     read -p "Some warning message view in press [Enter]"
@@ -370,6 +369,7 @@ function revert() {
             exit
             ;;
         armeabi|armv8l|armeabi-v7a|armv7l|i*86)
+            print_banner
             if [ -e $PREFIX/../usr64-backup ]; then
                    if ask "Do you want to switch back to 64-bit? All data in this environment will be lost" "N"; then
                       printf "${yellow}[#] Switch back to 64-bit mode${reset}\n\n"
@@ -402,26 +402,61 @@ EOM
                       exec /system/bin/env -i ./purge-prefix.sh
                    fi
             else
-                printf "${red}"
-                echo "[!] The Backup Directory isn't exists."
-                echo "    Or your device is unsupported maybe."
-                printf "${reset}\n\n"
-                echo "If you think you have a problem with termux prefix"
-                echo "And if your device architecture is 64-bit then you can delete termux prefix usr."
-                echo "If you delete PREFIX usr then"
-                echo "all data in this environment will be lost"
-                if ask "Do you want delete termux prefix-usr" "N"; then
-                    echo "    Deleting....."
-                    rm -rf $PREFIX/../usr
-                    echo "[✓] Done, Please Close and Reopen the app"
-                    kill -KILL $PPID
-                fi
-                exit
+                printf "${blue}[*] Checking device architecture ..."
+                case $(getprop ro.product.cpu.abi) in
+                    arm64-v8a|arm64-v8|aarch64|arm64|x86_64|amd64)
+                        printf "\n\n${green}"
+                        echo "Maybe your device architecture is $(getprop ro.product.cpu.abi)"
+                        echo "If you think you have a problem with termux prefix"
+                        echo "And if your device architecture is 64-bit,"
+                        echo "then you can delete termux prefix usr."
+                        echo "If you delete PREFIX usr then"
+                        echo "all data in this environment will be lost"
+                        printf "${reset}\n"
+                        if ask "Do you want delete termux prefix-usr" "N"; then
+                            echo "    Deleting.....            And...."
+                            printf "${yellow}[#] Switch back to 64-bit mode${reset}\n\n"
+                            cd $PREFIX/..
+                            echo "[*] Purging 32-bit environment"
+                            cat > purge-prefix.sh <<- EOM
+                            #!/system/bin/sh
+                            echo "[*] Creating Backup"
+                            chmod 755 usr -R &> /dev/null ||:
+                            rm -rf usr32-backup
+                            mv usr usr32-backup
+                            rm -rf purge-prefix.sh
+
+                            echo "[✓] Done, Please Close and Reopen the app"
+                            sleep 2
+                            kill -KILL $PPID
+EOM
+                            chmod 755 purge-prefix.sh
+
+                            # Kill Current Process and Purge 32-bit prefix
+                            exec /system/bin/env -i ./purge-prefix.sh
+                        fi
+                        ;;
+                    armeabi|armv8l|armeabi-v7a|armv7l|i*86)
+                        printf "${red}"
+                        echo "Maybe your device architecture is $(getprop ro.product.cpu.abi)"
+                        echo "[!] The Backup Directory isn't exists."
+                        echo "    Or your device is unsupported maybe."
+                        printf "${reset}\n\n"
+                        echo "[-] Sorry... Don't switch back to 64-bit"
+                        echo "[~] So sad,, Please Close and Reopen the app"
+                        kill -KILL $PPID
+                        exit
+                        ;;
+                    *)
+                         unsupported_arch
+                        ;;
+                esac
             fi
     esac
 }
 
 function revert32() {
+            print_banner
             # Ask for Confirmation
             if ask "Do you want to switch back to 32-bit?" "N"; then
                printf "${yellow}[#] Switch back to 32-bit mode${reset}\n\n"
@@ -505,12 +540,10 @@ function prefix() {
                 print-help
                 ;;
             2)
-                print_banner || :
                 echo "You chose 32-bit bootstrap installer"
                 switch
                 ;;
             3)
-                print_banner || :
                 echo "You chose 64-bit Restore Backup"
                 revert
                 ;;
