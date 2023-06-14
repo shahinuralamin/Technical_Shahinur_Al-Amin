@@ -86,9 +86,13 @@ function check_dependencies() {
     }
 }
 
-function bootstrap_dir() {
+function welcome_voice() {
   if ask "Do you want continue with welcome voice" "Y"; then
      printf "${yellow}Continuing Anyway${reset}\n\n"
+     bootstrap_dir
+  fi
+}
+function bootstrap_dir() {
      check_dependencies
      check_Bootstrap_directory
     if [ -f /sdcard/Termux-Bootstrap/welcome.mp3 ];then
@@ -102,7 +106,6 @@ function bootstrap_dir() {
         printf "${green}Welcome to Al-Amin Zone${reset}\n\n"
         play-audio /sdcard/Termux-Bootstrap/welcome.mp3
     fi
-  fi
 }
 
 
@@ -585,11 +588,18 @@ case "$1" in
 	revert|Revert|REVERT)
 		revert
 		;;
-	*)
+	*Y*|*y*)
 		print_prefix_banner
                 get_version
                 bootstrap_dir
                 excute_bin
                 prefix
 		;;
+        *)
+                print_prefix_banner
+                get_version
+                welcome_voice
+                excute_bin
+                prefix
+                ;;
 esac
