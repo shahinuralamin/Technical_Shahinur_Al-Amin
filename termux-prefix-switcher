@@ -437,7 +437,7 @@ EOM
                         fi
                         ;;
                     armeabi|armv8l|armeabi-v7a|armv7l|i*86)
-                        printf "${red}"
+                        printf "\n\n${red}"
                         echo "Maybe your device architecture is $(getprop ro.product.cpu.abi)"
                         echo "[!] The Backup Directory isn't exists."
                         echo "    Or your device is unsupported maybe."
