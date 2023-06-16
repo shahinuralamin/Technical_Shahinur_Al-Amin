@@ -52,7 +52,7 @@ function ask() {
 function get_arch() {
     printf "${blue}[*] Checking your device & termux architecture ...${reset}\n\n"
     printf "${yellow}[>] Your device architecture is ${green}[$device_arch] ${yellow}[<]\n[>] Your termux architecture is ${green}[$termux_arch] ${yellow}[<]${reset}\n\n"
-    case $archcase in
+    case $termux_arch in
         arm64-v8a|arm64-v8|aarch64|arm64)
             SYS_ARCH=arm64
             ;;
