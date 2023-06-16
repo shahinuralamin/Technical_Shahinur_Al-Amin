@@ -153,7 +153,7 @@ function check_dependencies() {
     ## Workaround for termux-app issue #1283 (https://github.com/termux/termux-app/issues/1283)
     ##apt update -y &> /dev/null
     apt-get update -y &> /dev/null || apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" dist-upgrade -y &> /dev/null
-    if [ -e $HOME/storage ]; thenp
+    if [ -e $HOME/storage ]; then
         printf "${reset}"
         echo "check storage" >> /sdcard/.Al-Amin_Zone || {
             setup_storage
