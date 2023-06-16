@@ -54,6 +54,10 @@ function get_version() {
         *)
             printf "${yellow}Your device's Android version is $(getprop ro.build.version.release)${reset}\n\n"
             if [ -e $HOME/storage ]; then
+                echo "check storage" >> /sdcard/.Al-Amin_Zone || {
+                printf "\n\n${green}Please send 'y' command & then press 'Enter'.\nOr,${reset}"
+                setup_storage
+            }
                 echo "  Storage is OK"
             else
                 printf "Configuring termux setup storage...\n"
@@ -149,15 +153,17 @@ function print-help() {
 }
 
 function setup_storage() {
-    printf "\n\n${green}Please send 'y' command & then press 'Enter'.\nOr, Allow the storage permission.${reset}\n"
+    printf "\n${green}Allow the storage permission.${reset}\n"
     termux-setup-storage ||:
     read -p " [#] Check the Termux storage permission. [Enter]"
+    echo "check storage" >> /sdcard/.Al-Amin_Zone || {
+        printf "\n\n${green}Please send 'y' command & then press 'Enter'.\nOr,${reset}"
+        setup_storage
+        return 0
+    }
     if [ -e $HOME/storage ]; then
         echo "  Termux storage setup is OK"
         Bootstrap_directory
-        echo "check storage" >> /sdcard/Termux-Bootstrap/.Al-Amin_Zone || {
-            setup_storage
-        }
     else
         read -p " [!] Please allow the Storage permission. [Enter]"
         setup_storage
