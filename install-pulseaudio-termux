@@ -19,11 +19,11 @@ function check_dependencies() {
     printf "\033[1;35mapt upgrade starting...\n${reset}"
     apt upgrade -y || {
         printf "\n${red}ERROR: Failed to upgrade packages.\n_______Please check the internet connection.\n\n"
-        read -p "$1[?] Do you want continue any way or exit ? [c/E] " ANS
+        read -p "$1[?] Do you want continue any way ??? [y/N] " ANS
         printf "\n${reset}"
         case "$ANS" in
-        c*|C*) echo "Continuing any way.";return 0;;
-        e|E|*) echo "You have successfully loged out.";exit;;
+            *y*|*Y*) echo "Continuing any way.";return 0;;
+            *) echo "You have successfully logged out.";exit;;
         esac
     }
 }
@@ -55,7 +55,7 @@ function bootstrap_dir() {
     mkdir /sdcard/Termux-Bootstrap &> /dev/null || :
     if [ -f /sdcard/Termux-Bootstrap/welcome.mp3 ];then
         printf "${green}Welcome to Al-Amin Zone${reset}\n\n"
-        play-audio /sdcard/Termux-Bootstrap/welcome.mp3
+        play-audio /sdcard/Termux-Bootstrap/welcome.mp3 &> /dev/null ||:
     else
         axel --output=/sdcard/Termux-Bootstrap/welcome.mp3 https://github.com/shahinuralamin/Technical_Shahinur_Al-Amin/releases/download/termux-prefix-switcher/welcome.mp3 &> /dev/null || {
              printf "${red}E: Internet connection failed ${reset}\n\n"
