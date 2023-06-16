@@ -85,8 +85,13 @@ function check_dependencies() {
     done
     printf "\033[1;35mapt upgrade starting...${reset}\n"
     apt upgrade -y || {
-        printf "\n${red}ERROR: Failed to upgrade packages.\n_______Please check the internet connection.\n_______Exiting______.\n${reset}"
-        echo "Continue anyway..."
+        printf "\n${red}ERROR: Failed to upgrade packages.\n_______Please check the internet connection.\n\n"
+        read -p "$1[?] Do you want continue any way ??? [y/N] " ANS
+        printf "\n${reset}"
+        case "$ANS" in
+            *y*|*Y*) echo "Continuing any way.";return 0;;
+            *) echo "You have successfully logged out.";exit;;
+        esac
     }
 }
 
@@ -137,15 +142,12 @@ function print-help() {
     clear
     case $CHOICE in
             1)
-                echo "You chose Termux Prefix Switcher"
                 prefix
                 ;;
             2)
-                echo "You chose 32-bit bootstrap installer"
                 switch
                 ;;
             3)
-                echo "You chose 64-bit Restore Backup"
                 revert
                 ;;
     esac
@@ -172,7 +174,7 @@ function setup_storage() {
 function Bootstrap_directory() {
     if [ ! -d /sdcard/Termux-Bootstrap ]; then
         printf "${yellow}Termux-Bootstrap directory creating${reset}\n\n"
-        mkdir /sdcard/Termux-Bootstrap &> /dev/null || {
+        mkdir /sdcard/Termux-Bootstrap || {
              setup_storage
         }
     fi
@@ -213,7 +215,6 @@ function switch() {
             clear
             case $CHOICE in
                 1)
-                echo "You chose Termux Prefix Switcher"
                 prefix
                 ;;
             esac
@@ -225,7 +226,7 @@ function switch() {
     printf "${light_cyan}"
     read -p "Some warning message view in press [Enter]"
     printf "${reset}"
-    if [ -e $PREFIX/../usr32-backup ]; then
+    if [ -e $PREFIX/../usr32-backup1 ]; then
             printf "${yellow}[√] Arm 32-bit usr backup found${reset}\n\n"
             printf "${green}[★] Maybe you are already read warning message.${reset}"
             printf "${light_cyan}\n"
@@ -367,15 +368,14 @@ function revert() {
             clear
             case $CHOICE in
                 1)
-                echo "You chose Termux Prefix Switcher"
                 prefix
                 ;;
             esac
             exit
             ;;
         armeabi|armv8l|armeabi-v7a|armv7l|i*86)
-            print_banner
             if [ -e $PREFIX/../usr64-backup ]; then
+                print_banner
                    if ask "Do you want to switch back to 64-bit? All data in this environment will be lost" "N"; then
                       printf "${yellow}[#] Switch back to 64-bit mode${reset}\n\n"
                       cd $PREFIX/..
@@ -407,11 +407,12 @@ EOM
                       exec /system/bin/env -i ./purge-prefix.sh
                    fi
             else
+                print_banner
                 printf "${blue}[*] Checking device architecture ..."
                 case $(getprop ro.product.cpu.abi) in
                     arm64-v8a|arm64-v8|aarch64|arm64|x86_64|amd64)
                         printf "\n\n${green}"
-                        echo "Maybe your device architecture is $(getprop ro.product.cpu.abi)"
+                        echo "Maybe your device architecture is $(getprop ro.product.cpu.abi)[64-bit]"
                         echo "If you think you have a problem with termux prefix"
                         echo "And if your device architecture is 64-bit,"
                         echo "then you can delete termux prefix usr."
@@ -443,7 +444,7 @@ EOM
                         ;;
                     armeabi|armv8l|armeabi-v7a|armv7l|i*86)
                         printf "\n\n${red}"
-                        echo "Maybe your device architecture is $(getprop ro.product.cpu.abi)"
+                        echo "Maybe your device architecture is $(getprop ro.product.cpu.abi)[32-bit]"
                         echo "[!] The Backup Directory isn't exists."
                         echo "    Or your device is unsupported maybe."
                         printf "${reset}\n\n"
@@ -461,7 +462,6 @@ EOM
 }
 
 function revert32() {
-            print_banner
             # Ask for Confirmation
             if ask "Do you want to switch back to 32-bit?" "N"; then
                printf "${yellow}[#] Switch back to 32-bit mode${reset}\n\n"
@@ -509,7 +509,6 @@ function termux_arch() {
     clear
     case $CHOICE in
             1)
-               echo "You chose Termux Prefix Switcher"
                prefix
                ;;
     esac
@@ -541,19 +540,15 @@ function prefix() {
     clear
     case $CHOICE in
             1)
-                echo "You chose termux-prefix-switcher help"
                 print-help
                 ;;
             2)
-                echo "You chose 32-bit bootstrap installer"
                 switch
                 ;;
             3)
-                echo "You chose 64-bit Restore Backup"
                 revert
                 ;;
             4)
-                echo "Check Architecture."
                 termux_arch
                 ;;
             5)
