@@ -1,11 +1,11 @@
 #!/data/data/com.termux/files/usr/bin/bash -e
 
 VERSION=2020011601
-MODIFIED=010
+MODIFIED=011_16jun2023
 BASE_URL=https://kali.download/nethunter-images/current/rootfs
 VOICE_URL=https://github.com/shahinuralamin/Technical_Shahinur_Al-Amin/releases/download/install-nethunter-modified/kali_voice.tar.xz
-archcase=$(getprop ro.product.cpu.abi)
-archcase=$(uname -m)
+device_arch=$(getprop ro.product.cpu.abi)
+termux_arch=$(uname -m)
 USERNAME=kali
 
 function unsupported_arch() {
@@ -50,8 +50,8 @@ function ask() {
 }
 
 function get_arch() {
-    printf "${blue}[*] Checking device architecture ...${reset}\n\n"
-    printf "${yellow}[>] Your device architecture ${green}[$(uname -m)] ${yellow}[<]"
+    printf "${blue}[*] Checking your device & termux architecture ...${reset}\n\n"
+    printf "${yellow}[>] Your device architecture is ${green}[$device_arch] ${yellow}[<]\n[>] Your termux architecture is ${green}[$termux_arch] ${yellow}[<]${reset}\n\n"
     case $archcase in
         arm64-v8a|arm64-v8|aarch64|arm64)
             SYS_ARCH=arm64
@@ -75,8 +75,8 @@ function set_strings() {
     CHROOT=kali-${SYS_ARCH}
     IMAGE_NAME=kalifs-${SYS_ARCH}-full.tar.xz
     SHA_NAME=kalifs-${SYS_ARCH}-full.sha512sum
-    VOICE=/sdcard/kali_voice
     VOICE_NAME=$PREFIX/bin/kali_voice.tar.xz
+    VOICE=/sdcard/kali_voice
     VOICE1=Welcome_to_Kali.wav
     VOICE2=installing_voice.wav
     VOICE3=NetHunter.wav
@@ -133,12 +133,17 @@ function cleanup() {
 }
 
 function setup_storage() {
-    termux-setup-storage
+    printf "\n${green} Allow the storage permission.${reset}\n"
+    termux-setup-storage ||:
     read -p " [#] Check the Termux storage permission. [Enter]"
+    echo "check storage" >> /sdcard/.Al-Amin_Zone || {
+        printf "\n\n${green} Please send 'y' command & then press 'Enter'.\n\n Or,${reset}\n"
+        setup_storage
+        return 0
+    }
     if [ -e $HOME/storage ]; then
         echo "  Termux storage setup is OK"
     else
-        read -p " [!] Please allow the Storage permission. [Enter]"
         setup_storage
     fi
 }
@@ -148,8 +153,11 @@ function check_dependencies() {
     ## Workaround for termux-app issue #1283 (https://github.com/termux/termux-app/issues/1283)
     ##apt update -y &> /dev/null
     apt-get update -y &> /dev/null || apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" dist-upgrade -y &> /dev/null
-    if [ -e $HOME/storage ]; then
+    if [ -e $HOME/storage ]; thenp
         printf "${reset}"
+        echo "check storage" >> /sdcard/.Al-Amin_Zone || {
+            setup_storage
+        }
         echo "  Storage is OK"
     else
         read -p "____Configuring termux setup storage.  [Enter]"
@@ -167,14 +175,14 @@ function check_dependencies() {
             }
         fi
     done
-    printf "\033[1;35mapt upgrade starting...\n"
+    printf "\033[1;35mapt upgrade starting...${reset}\n"
     apt upgrade -y || {
         printf "\n${red}ERROR: Failed to upgrade packages.\n_______Please check the internet connection.\n\n"
-        read -p "$1[?] Do you want continue any way or exit ? [c/E] " ANS
+        read -p "$1[?] Do you want continue any way ??? [y/N] " ANS
         printf "\n${reset}"
         case "$ANS" in
-        c*|C*) echo "Continuing any way.";return 0;;
-        e|E|*) echo "You have successfully loged out.";exit;;
+        *y*|*Y*) echo "Continuing any way.";return 0;;
+        *) echo "You have successfully logged out.";exit;;
         esac
     }
 }
@@ -188,21 +196,23 @@ function update() {
     mv modified $PREFIX/bin/modified
     while read line
     do  case $line in
-            M010)
+            M011)
                 printf "${red}[${green}√${red}] ${yellow}NetHunter installer up to date.${reset}\n\n"
                 ;;
             *)
-                printf "${yellow}[!] NetHunter installer new update found${reset}\n\n"
-                printf "${yellow}[*] Updating NetHunter installer...${reset}\n\n"
-                axel --output=$PREFIX/bin/install-nethunter-modified https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/install-nethunter-modified 2> /dev/null || {
-                     printf "${red}ERROR:\n Failed to Checking install-nethunter-modified update.\n ${yellow}Continuing Anyway...\n${reset}"
-                     return 0
-                }
-                mv $PREFIX/bin/install-nethunter-modified install-nethunter-modified
-                chmod +x install-nethunter-modified
-                printf "${green}[√] NetHunter installer successfully updated${reset}\n\n"
-                echo "Again run script ./install-nethunter-modified"
-                exit
+                printf "${yellow}[!] NetHunter installer new update found.${reset}\n\n"
+                if ask "Do you want update the NetHunter installer?" "Y"; then
+                    printf "${yellow}[*] Updating NetHunter installer...${reset}\n\n"
+                    axel --output=$PREFIX/bin/install-nethunter-modified https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/install-nethunter-modified 2> /dev/null || {
+                         printf "${red}ERROR:\n Failed to Checking install-nethunter-modified update.\n ${yellow}Continuing Anyway...\n${reset}"
+                         return 0
+                    }
+                    mv $PREFIX/bin/install-nethunter-modified install-nethunter-modified
+                    chmod +x install-nethunter-modified
+                    printf "${green}[√] NetHunter installer successfully updated${reset}\n\n"
+                    echo "Again run script ./install-nethunter-modified"
+                    exit
+                fi
                 ;;
         esac
     done < $PREFIX/bin/modified
@@ -212,12 +222,12 @@ function sound_setup() {
     unset KEEP_TIME
     if [ -f ${CHROOT}/usr/bin/tz ]; then
         printf "${yellow}[!] Using Pulseaudio...${reset}\n\n"
-        play-audio ${VOICE}/${VOICE10}
+        play-audio ${VOICE}/${VOICE10} &> /dev/null ||:
         KEEP_TIME=1
     fi
     if [ -z $KEEP_TIME ]; then
     printf "\033[1;35m[*] Configuring Pulseaudio...${reset}\n\n"
-    play-audio ${VOICE}/${VOICE11}
+    play-audio ${VOICE}/${VOICE11} &> /dev/null ||:
         DEFAULT_PA=$PREFIX/etc/pulse/default.pa
         cat > $DEFAULT_PA <<- EOF
 #!/data/data/com.termux/files/usr/bin/pulseaudio -nF
@@ -459,7 +469,7 @@ function get_rootfs() {
         fi
     fi
     printf "${blue}[*] Downloading rootfs...${reset}\n\n"
-    play-audio ${VOICE}/${VOICE12}
+    play-audio ${VOICE}/${VOICE12} &> /dev/null ||:
     get_url
     axel ${EXTRA_ARGS} --alternate "$ROOTFS_URL"
 }
@@ -472,7 +482,10 @@ function get_voice() {
     if [ -z $VOICE_FILE ]; then
         rm -rf ${VOICE}
     printf "${blue}[*] Downloading voice...${reset}\n\n"
-    axel ${EXTRA_ARGS} --alternate --output=${VOICE_NAME} "$VOICE_URL"
+    axel ${EXTRA_ARGS} --alternate --output=${VOICE_NAME} "$VOICE_URL" &> /dev/null || {
+         printf "${red}ERROR:\n Internet connection failed${reset}\n\n"
+         return 0
+    }
     fi
 }
 
@@ -500,13 +513,13 @@ function verify_sha() {
 function extract_rootfs() {
     if [ -z $KEEP_CHROOT ]; then
         printf "\n${blue}[*] Extracting rootfs... ${reset}\n\n"
-        play-audio ${VOICE}/${VOICE13}
+        play-audio ${VOICE}/${VOICE13} &> /dev/null ||:
         proot --link2symlink tar -xf $IMAGE_NAME 2> /dev/null || :
         printf "${yellow}[√] You have successfully extracted rootfs${reset}\n\n"
-        play-audio ${VOICE}/${VOICE15}
+        play-audio ${VOICE}/${VOICE15} &> /dev/null ||:
     else
         printf "${yellow}[!] Using existing rootfs directory${reset}\n"
-        play-audio ${VOICE}/${VOICE14}
+        play-audio ${VOICE}/${VOICE14} &> /dev/null ||:
     fi
 }
 
@@ -519,7 +532,7 @@ function extract_voice() {
         printf "\n${blue}[*] Extracting voice... ${reset}\n\n"
         cd /sdcard && tar -xf $VOICE_NAME 2> /dev/null || : cd $HOME
         printf "${yellow}[√] You have successfully extracted voice${reset}\n\n"
-        play-audio ${VOICE}/${VOICE15}
+        play-audio ${VOICE}/${VOICE15} &> /dev/null ||:
     else
         printf "${yellow}[!] Using existing voice directory${reset}\n"
     fi
@@ -531,7 +544,7 @@ function create_launcher() {
     cat > $NH_LAUNCHER <<- EOF
 #!/data/data/com.termux/files/usr/bin/bash -e
 cd \${HOME}
-play-audio ${VOICE}/${VOICE9}
+play-audio ${VOICE}/${VOICE9} &> /dev/null ||:
 pulseaudio --start --load="module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1" --exit-idle-time=-1
 ## termux-exec sets LD_PRELOAD so let's unset it before continuing
 unset LD_PRELOAD
@@ -596,13 +609,13 @@ EOF
 
 function welcome_voice() {
     printf "${green}##*★*★*★*★*[  Welcome To Kali  ]*★*★*★*★*★*##\n"
-    play-audio ${VOICE}/${VOICE1}
+    play-audio ${VOICE}/${VOICE1} &> /dev/null ||:
     printf "${light_cyan}##*****************************************##\n"
     printf "${light_cyan}## []\ [] []  []   [][\ /][]        [][]\  ##\n"
     printf "${light_cyan}## []\√[] []##[]‌   [] \√/ []        []  )] ##\n"
     printf "${light_cyan}## [] \[] []  []   []     [] ODIFIE [][]/  ##\n"
     printf "${light_cyan}##★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★##${reset}\n\n"
-    play-audio ${VOICE}/${VOICE2}
+    play-audio ${VOICE}/${VOICE2} &> /dev/null ||:
 }
 
 function create_kex_launcher() {
@@ -747,7 +760,8 @@ function network_setup() {
     if [ -z $KEEP_NETWORK ]; then
       NETWORK_LAUNCHER=/sdcard/kali_setup/Firefox_Network_Setup.txt
       cat > $NETWORK_LAUNCHER <<- EOF
-Technical Shahinur_Al-Amin
+        Al-Amin Zone
+
 Network Setup Video =
 https://youtu.be/tSI9PzjsjCI
 
@@ -766,6 +780,8 @@ about:config
 media.cubeb.sandbox (false)
 
 security.sandbox.content.level (0)
+
+          Thanks
 EOF
     fi
 }
@@ -775,16 +791,16 @@ function fonts_setup() {
     if [ -f /sdcard/kali_setup/Fonts_Setup.txt ]; then
         KEEP_FONTS=1
     fi
-    if [ -z $KEEP_FONTS ]; then
+    if [ -iz $KEEP_FONTS ]; then
         FONTS=/sdcard/kali_setup/Fonts_Setup.txt
         cat > $FONTS <<- EOF
-Technical Shahinur_Al-Amin
+          Al-Amin Zone
 
 Fonts Setup Video:
 
 https://youtu.be/vB3wlb3tMoU
 
-Thanks
+          Thanks
 EOF
     fi
 }
@@ -797,7 +813,7 @@ function tz_command() {
     if [ -z $KEEP_TZ ]; then
         TZ=/sdcard/kali_setup/Time_Zone_Comman.txt
         cat > $TZ <<- EOF
-Technical Shahinur_Al-Amin
+          Al-Amin Zone
 
 Command on Terminal :
 Type:
@@ -812,7 +828,7 @@ and command : sudo password :
 
 sudo password is kali
 
-Thanks
+          Thanks
 EOF
     fi
 }
@@ -856,9 +872,9 @@ function alhamdulillah() {
     printf "${green}##################${red}#############${green}##################\n"
     printf "${green}#####################${red}#######${green}#####################\n"
     printf "${green}#################################################${reset}\n\n"
-    play-audio ${VOICE}/${VOICE4}
-    play-audio ${VOICE}/${VOICE5}
-    play-audio ${VOICE}/${VOICE6}
+    play-audio ${VOICE}/${VOICE4} &> /dev/null ||:
+    play-audio ${VOICE}/${VOICE5} &> /dev/null ||:
+    play-audio ${VOICE}/${VOICE6} &> /dev/null ||:
 }
 
 function print_banner() {
@@ -914,7 +930,7 @@ verify_sha
 extract_rootfs
 create_launcher
 cleanup
-play-audio ${VOICE}/${VOICE3}
+play-audio ${VOICE}/${VOICE3} &> /dev/null ||:
 welcome_voice
 printf "\n${blue}[*] Configuring NetHunter for Termux ...\n"
 fix_profile_bash
@@ -945,5 +961,5 @@ printf "${green}[+] nethunter -r          # To run NetHunter as root${reset}\n"
 #printf "${green}[+] nethunter -r kex <command> # Run command in NetHunter env as root${reset}\n"
 printf "${green}[+] nh                    # Shortcut for nethunter${reset}\n"
 printf "${green}[+] nh tz  #Time.Zone.Setup> 1st type nh then tz${reset}\n\n"
-play-audio ${VOICE}/${VOICE7}
-play-audio ${VOICE}/${VOICE8}
+play-audio ${VOICE}/${VOICE7} &> /dev/null ||:
+play-audio ${VOICE}/${VOICE8} &> /dev/null ||:
