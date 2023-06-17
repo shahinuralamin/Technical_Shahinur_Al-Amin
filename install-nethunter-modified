@@ -941,7 +941,7 @@ print_banner
 get_arch
 set_strings
 check_dependencies
-update
+check_update
 prepare_fs
 cleanup_voice_file
 get_voice
