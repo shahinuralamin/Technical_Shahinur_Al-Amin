@@ -204,7 +204,7 @@ function check_dependencies() {
     }
 }
 
-function update() {
+function check_update() {
     printf "${yellow}Checking update...${reset}\n\n"
     if [ -f $PREFIX/bin/modified ]; then
         rm -f $PREFIX/bin/modified
@@ -218,22 +218,26 @@ function update() {
             printf "${red}[${green}√${red}] ${yellow}NetHunter installer up to date.${reset}\n"
             ;;
         *)
-            printf "${yellow}[!] NetHunter installer new update found.${reset}\n\n"
-            if ask "Do you want update the NetHunter installer?" "N"; then
-                printf "${yellow}[*] Updating NetHunter installer...${reset}\n\n"
-                axel --output=$PREFIX/bin/install-nethunter-modified https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/install-nethunter-modified 2> /dev/null || {
-                     printf "${red}ERROR:\n Failed to Checking install-nethunter-modified update.\n ${yellow}Continuing Anyway...\n${reset}"
-                     return 0
-                }
-                mv $PREFIX/bin/install-nethunter-modified install-nethunter-modified
-                chmod +x install-nethunter-modified
-                printf "${green}[√] NetHunter installer successfully updated${reset}\n\n"
-                echo "Again run script ./install-nethunter-modified"
-                exit
-            fi
+            update
             ;;
     esac
     done < $PREFIX/bin/modified
+}
+
+function update() {
+    printf "${yellow}[!] NetHunter installer new update found.${reset}\n\n"
+    if ask "Do you want update the NetHunter installer?" "N"; then
+        printf "${yellow}[*] Updating NetHunter installer...${reset}\n\n"
+        axel --output=$PREFIX/bin/install-nethunter-modified https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/install-nethunter-modified 2> /dev/null || {
+            printf "${red}ERROR:\n Failed to Checking install-nethunter-modified update.\n ${yellow}Continuing Anyway...\n${reset}"
+            return 0
+        }
+        mv $PREFIX/bin/install-nethunter-modified install-nethunter-modified
+        chmod +x install-nethunter-modified
+        printf "${green}[√] NetHunter installer successfully updated${reset}\n\n"
+        echo "Again run script ./install-nethunter-modified"
+        exit
+   fi
 }
 
 function sound_setup() {
