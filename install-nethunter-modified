@@ -111,16 +111,23 @@ function cleanup_voice_file() {
                 if ask "Do you want delete & download a new one?" "Y"; then
                     rm -f $VOICE_NAME
                     printf "${red}[x] Voice archive deleted.${reset}\n"
+                else
+                    printf "${light_cyan}[&] ( OR ) [&]${reset}"
+                    cleanup_voice_directory
                 fi
             fi
         else
-            if [ -d $VOICE ]; then
-                printf "\n${yellow}[!] Some files missing in voice directory.${reset}\n"
-                if ask "Do you want delete and extract newly" "Y"; then
-                    rm -rf $VOICE
-                    printf "${red}[x] Voice directory deleted.${reset}\n"
-                fi
-            fi
+            printf "\n${yellow}[!] Some files missing in voice directory.${reset}"
+            cleanup_voice_directory
+        fi
+    fi
+}
+
+function cleanup_voice_directory() {
+    if [ -d $VOICE ]; then
+        if ask "Do you want delete and extract newly" "Y"; then
+            rm -rf $VOICE
+            printf "${red}[x] Voice directory deleted.${reset}\n"
         fi
     fi
 }
@@ -152,35 +159,28 @@ function cleanup() {
 function setup_storage() {
     printf "\n${green}";read -p " Allow the storage permission. [Enter]";printf "${reset}\n"
     termux-setup-storage ||:
-    printf "${blue}\n";read -p " [#] Check the Termux storage permission. [Enter]"; printf "${reset}\n"
+    printf "${blue}";read -p " [#] Check the Termux storage permission. [Enter]"; printf "${reset}\n"
     echo "check storage" >> /sdcard/.Al-Amin_Zone || {
-        printf "\n\n${green} Please send 'y' command & then press 'Enter'.\n\n Or,${reset}\n"
+        printf "\n${green} Please send 'y' command & then press 'Enter'.\n\n Or,${reset}\n"
         setup_storage
         return 0
     }
-    if [ -e $HOME/storage ]; then
-        echo "  Termux storage setup is OK"
-    else
-        setup_storage
-    fi
 }
 
 function check_dependencies() {
-    printf "${blue}\n[*] Checking package dependencies...\n"
+    printf "${blue}\n[*] Checking package dependencies...${reset}\n"
     ## Workaround for termux-app issue #1283 (https://github.com/termux/termux-app/issues/1283)
     ##apt update -y &> /dev/null
     apt-get update -y &> /dev/null || apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" dist-upgrade -y &> /dev/null
     if [ -e $HOME/storage ]; then
-        printf "${reset}"
         echo "check storage" >> /sdcard/.Al-Amin_Zone || {
             setup_storage
         }
-        echo "  Storage is OK"
     else
-        read -p "____Configuring termux setup storage.  [Enter]"
-        printf "${reset}\n"
+        printf "${blue}[*] Configuring termux setup storage...${reset}\n"
         setup_storage
     fi
+    echo "  Storage is OK"
     for i in proot axel tar pulseaudio play-audio; do
         if [ -e $PREFIX/bin/$i ]; then
             echo "  $i is OK"
