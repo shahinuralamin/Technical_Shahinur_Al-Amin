@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash -e
 
 VERSION=2020011601
-MODIFIED=013_18jun2023
+MODIFIED=012_18jun2023
 BASE_URL=https://kali.download/nethunter-images/current/rootfs
 VOICE_URL=https://github.com/shahinuralamin/Technical_Shahinur_Al-Amin/releases/download/install-nethunter-modified/kali_voice.tar.xz
 device_arch=$(getprop ro.product.cpu.abi)
@@ -99,7 +99,7 @@ function cleanup_voice_file() {
     printf "${blue}\n[*] Checking voice files...${reset}\n"
     for f in ${PHOTO} ${VOICE1} ${VOICE2} ${VOICE3} ${VOICE4} ${VOICE5} ${VOICE6} ${VOICE7} ${VOICE8} ${VOICE9} ${VOICE10} ${VOICE11} ${VOICE12} ${VOICE13} ${VOICE14} ${VOICE15}; do
         if [ -e ${VOICE}/$f ]; then
-            printf "$f ${yellow}is OK ${green}[√]\n${reset}"
+            printf "$f ${yellow}is OK ${green}[✔]\n${reset}"
         else
             printf "$f ${red}Not found\n${reset}";KEEP_CLEAN=1
         fi
@@ -108,11 +108,11 @@ function cleanup_voice_file() {
         if [ -f $PREFIX/bin/modified ]; then
             if [ -f $VOICE_NAME ]; then
                 printf "\n${yellow}[!] Some existing voice files missing.${reset}"
-                if ask "Do you want delete & download a new one?" "Y"; then
+                if ask "Do you want delete & download newly?" "N"; then
                     rm -f $VOICE_NAME
                     printf "${red}[x] Voice archive deleted.${reset}\n"
                 else
-                    printf "${light_cyan}[&] ( OR ) [&]${reset}"
+                    printf "${light_cyan}[&]        	  【OR】		   [&]${reset}"
                     cleanup_voice_directory
                 fi
             fi
@@ -125,7 +125,7 @@ function cleanup_voice_file() {
 
 function cleanup_voice_directory() {
     if [ -d $VOICE ]; then
-        if ask "Do you want delete and extract newly" "Y"; then
+        if ask "Do you want delete ‎‎& extract newly??" "Y"; then
             rm -rf $VOICE
             printf "${red}[x] Voice directory deleted.${reset}\n"
         fi
@@ -214,30 +214,46 @@ function check_update() {
          return 0
     }
     while read line;do case $line in
-        M013)
-            printf "${red}[${green}√${red}] ${yellow}NetHunter installer up to date.${reset}\n"
+        M012)
+            printf "${red}[${green}✔${red}] ${yellow}NetHunter installer up to date.${reset}\n"
             ;;
         *)
-            update
+            KEEP_UPDATE=1
             ;;
     esac
     done < $PREFIX/bin/modified
 }
 
 function update() {
-    printf "${yellow}[!] NetHunter installer new update found.${reset}\n\n"
-    if ask "Do you want update the NetHunter installer?" "N"; then
-        printf "${yellow}[*] Updating NetHunter installer...${reset}\n\n"
-        axel --output=$PREFIX/bin/install-nethunter-modified https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/install-nethunter-modified 2> /dev/null || {
-            printf "${red}ERROR:\n Failed to Checking install-nethunter-modified update.\n ${yellow}Continuing Anyway...\n${reset}"
-            return 0
-        }
-        mv $PREFIX/bin/install-nethunter-modified install-nethunter-modified
-        chmod +x install-nethunter-modified
-        printf "${green}[√] NetHunter installer successfully updated${reset}\n\n"
-        echo "Again run script ./install-nethunter-modified"
-        exit
-   fi
+    if [ ! -z $KEEP_UPDATE ]; then
+        printf "${yellow}[≛] NetHunter installer new update found.\n${light_cyan}"
+        read -p "$1[?] Do you want update this?... [y/N] " REPLY;printf "${reset}\n"
+        case $REPLY in
+            *y*|*Y*)
+               printf "${yellow}[*] Updating NetHunter installer...${reset}\n\n"
+               axel --output=$PREFIX/bin/install-nethunter-modified https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/install-nethunter-modified 2> /dev/null || {
+                   printf "${red}ERROR:\n Failed to Checking install-nethunter-modified update.\n ${yellow}Continuing Anyway...\n${reset}"
+                   return 0
+               }
+               if [ ! -d backup ]; then
+                   mkdir backup
+               fi
+               if [ -f backup/install-nethunter-modified ]; then
+                   rm -f backup/install-nethunter-modified
+               fi
+               mv install-nethunter-modified backup/install-nethunter-modified
+               printf "${green}[✔] Old install-nethunter-modified backup successfully\n"
+               mv $PREFIX/bin/install-nethunter-modified install-nethunter-modified
+               chmod +x install-nethunter-modified
+               printf "[] NetHunter installer successfully updated${reset}\n\n"
+               echo "Again run script ./install-nethunter-modified"
+               exit
+               ;;
+            *)
+               return 0
+               ;;
+        esac
+    fi
 }
 
 function sound_setup() {
@@ -538,7 +554,7 @@ function extract_rootfs() {
         printf "\n${blue}[*] Extracting rootfs... ${reset}\n\n"
         play-audio ${VOICE}/${VOICE13} &> /dev/null ||:
         proot --link2symlink tar -xf $IMAGE_NAME 2> /dev/null || :
-        printf "${yellow}[√] You have successfully extracted rootfs${reset}\n\n"
+        printf "${yellow}[✔] You have successfully extracted rootfs${reset}\n\n"
         play-audio ${VOICE}/${VOICE15} &> /dev/null ||:
     else
         printf "${yellow}[!] Using existing rootfs directory${reset}\n"
@@ -554,7 +570,7 @@ function extract_voice() {
     if [ -z $KEEP_VOICE ]; then
         printf "\n${blue}[*] Extracting voice... ${reset}\n\n"
         cd /sdcard && tar -xf $VOICE_NAME 2> /dev/null || : cd $HOME
-        printf "${yellow}[√] You have successfully extracted voice${reset}\n\n"
+        printf "${yellow}[✔] You have successfully extracted voice${reset}\n\n"
         play-audio ${VOICE}/${VOICE15} &> /dev/null ||:
     else
         printf "${yellow}[!] Using existing voice directory${reset}\n"
@@ -942,6 +958,7 @@ get_arch
 set_strings
 check_dependencies
 check_update
+update
 prepare_fs
 cleanup_voice_file
 get_voice
