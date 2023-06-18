@@ -231,7 +231,7 @@ function update() {
         case $REPLY in
             *y*|*Y*)
                printf "${yellow}[*] Updating NetHunter installer...${reset}\n\n"
-               axel --output=$PREFIX/bin/install-nethunter-modified https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/install-nethunter-modified 2> /dev/null || {
+               axel --output=$PREFIX/bin/install-nethunter-modified https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/install-nethunter-modified &> /dev/null || {
                    printf "${red}ERROR:\n Failed to Checking install-nethunter-modified update.\n ${yellow}Continuing Anyway...\n${reset}"
                    return 0
                }
