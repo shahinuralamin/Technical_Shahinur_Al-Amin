@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash -e
 
 VERSION=2020011601
-MODIFIED=016_21jun2023
+MODIFIED=015_18jun2023
 BASE_URL=https://kali.download/nethunter-images/current/rootfs
 VOICE_URL=https://github.com/shahinuralamin/Technical_Shahinur_Al-Amin/releases/download/install-nethunter-modified/kali_voice.tar.xz
 device_arch=$(getprop ro.product.cpu.abi)
@@ -215,7 +215,7 @@ function check_update() {
              return 0
     	}
     	while read line;do case $line in
-             M016)
+             M015)
             	KEEP_UPDATED=1
             	;;
              *)
@@ -592,6 +592,7 @@ cd \${HOME}
 play-audio ${VOICE}/${VOICE9} &> /dev/null ||:
 pulseaudio --start --load="module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1" --exit-idle-time=-1 &> /dev/null || {
 	printf "\n\033[1;31mProblem of Pulseaudio\033[0m\n\n"
+        echo "        Running apt update and upgrade....."
 	apt update &> /dev/null
 	apt-get update &> /dev/null
 	apt upgrade -y
@@ -600,9 +601,16 @@ pulseaudio --start --load="module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth
 	apt install axel -y &> /dev/null
 	axel --output=\$HOME/pulseaudioinstaller https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/install-pulseaudio-termux &> /dev/null || {
 	    printf "\n\033[1;31mInternet connection error\033[0m\n"
-	    exit
-	}
-mv pulseaudioinstaller install-pulseaudio-termux;chmod +x install-pulseaudio-termux;./install-pulseaudio-termux;nh \$cmd
+            pulseaudio --start --load="module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1" --exit-idle-time=-1 &> /dev/null || {
+                PULSE=1
+            }
+        }
+        if [ -f pulseaudioinstaller ]; then
+        mv pulseaudioinstaller install-pulseaudio-termux;chmod +x install-pulseaudio-termux;./install-pulseaudio-termux;\$PREFIX/bin/pa;
+        fi
+        if [ -z $PULSE ]; then
+            echo "pulseaudio is ok"
+        fi
 }
 ## termux-exec sets LD_PRELOAD so let's unset it before continuing
 unset LD_PRELOAD
