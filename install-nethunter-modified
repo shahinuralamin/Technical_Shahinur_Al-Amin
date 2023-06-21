@@ -76,23 +76,23 @@ function set_strings() {
     IMAGE_NAME=kalifs-${SYS_ARCH}-full.tar.xz
     SHA_NAME=kalifs-${SYS_ARCH}-full.sha512sum
     VOICE_NAME=$PREFIX/bin/kali_voice.tar.xz
-    PHOTO=Al_Amin_Zone.png
     VOICE=/sdcard/kali_voice
-    VOICE1=Welcome_to_Kali.wav
-    VOICE2=installing_voice.wav
-    VOICE3=NetHunter.wav
-    VOICE4=alhamdulillah.mp3
-    VOICE5=praise_be_to_God.mp3
-    VOICE6=congratulations.mp3
-    VOICE7=Kali_NetHunter_for_Termux_installed_successfully.wav
-    VOICE8=Modified_by_Al-Amin_Zone.mp3
-    VOICE9=xp_folder_open_sound.mp3
-    VOICE10=Using_Pulseaudio.wav
-    VOICE11=Configuring_Pulseaudio.wav
-    VOICE12=Downloading_rootfs..wav
-    VOICE13=Extracting_rootfs.wav
-    VOICE14=Using_existing_rootfs_directory.wav
-    VOICE15=Extracted.mp3
+    PHOTO=*Al_Amin*
+    VOICE1=*voice01*
+    VOICE2=*voice02*
+    VOICE3=*voice03*
+    VOICE4=*voice04*
+    VOICE5=*voice05*
+    VOICE6=*voice06*
+    VOICE7=*voice07*
+    VOICE8=*voice08*
+    VOICE9=*voice09*
+    VOICE10=*voice10*
+    VOICE11=*voice11*
+    VOICE12=*voice12*
+    VOICE13=*voice13*
+    VOICE14=*voice14*
+    VOICE15=*voice15*
 }
 
 function cleanup_voice_file() {
@@ -205,11 +205,11 @@ function check_dependencies() {
 }
 
 function check_update() {
+    if [ -f $PREFIX/bin/modified ]; then
+        rm -f $PREFIX/bin/modified
+    fi
     if ask "Do you want to check for update?" "N"; then
     	printf "${yellow}Checking update...${reset}\n\n"
-    	if [ -f $PREFIX/bin/modified ]; then
-            rm -f $PREFIX/bin/modified
-    	fi
     	axel --output=$PREFIX/bin/modified https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/modified &> /dev/null || {
              printf "${red}ERROR:\n Internet connection failed${reset}\n"
              return 0
@@ -226,7 +226,7 @@ function check_update() {
         update
     fi
     if [ ! -z $KEEP_UPDATED ]; then
-         printf "${red}[${green}✔${red}] ${yellow}NetHunter installer up to date.${reset}";read -p " "
+         printf "${red}[${green}✔${red}] ${yellow}NetHunter installer up to date${reset}";read -p " Press 〈ENTER〉 "
     fi
 }
 
@@ -590,7 +590,20 @@ function create_launcher() {
 #!/data/data/com.termux/files/usr/bin/bash -e
 cd \${HOME}
 play-audio ${VOICE}/${VOICE9} &> /dev/null ||:
-pulseaudio --start --load="module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1" --exit-idle-time=-1
+pulseaudio --start --load="module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1" --exit-idle-time=-1 &> /dev/null || {
+	printf "\n\033[1;31mProblem of Pulseaudio\033[0m\n\n"
+	apt update &> /dev/null
+	apt-get update &> /dev/null
+	apt upgrade -y
+	echo "Again installing packages"
+	apt reinstall pulseaudio -y &> /dev/null ||:
+	apt install axel -y &> /dev/null
+	axel --output=\$HOME/pulseaudioinstaller https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/install-pulseaudio-termux &> /dev/null || {
+	    printf "\n\033[1;31mInternet connection error\033[0m\n"
+	    exit
+	}
+mv pulseaudioinstaller install-pulseaudio-termux;chmod +x install-pulseaudio-termux;./install-pulseaudio-termux;nh \$cmd
+}
 ## termux-exec sets LD_PRELOAD so let's unset it before continuing
 unset LD_PRELOAD
 ## Workaround for Libreoffice, also needs to bind a fake /proc/version
