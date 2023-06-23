@@ -226,7 +226,7 @@ function switch() {
     printf "${light_cyan}"
     read -p "Some warning message view in press [Enter]"
     printf "${reset}"
-    if [ -e $PREFIX/../usr32-backup1 ]; then
+    if [ -e $PREFIX/../usr32-backup ]; then
             printf "${yellow}[√] Arm 32-bit usr backup found${reset}\n\n"
             printf "${green}[★] Maybe you are already read warning message.${reset}"
             printf "${light_cyan}\n"
