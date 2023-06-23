@@ -53,16 +53,6 @@ function get_version() {
             ;;
         *)
             printf "${yellow}Your device's Android version is $(getprop ro.build.version.release)${reset}\n\n"
-            if [ -e $HOME/storage ]; then
-                echo "check storage" >> /sdcard/.Al-Amin_Zone || {
-                printf "\n\n${green}Please send 'y' command & then press 'Enter'.\nOr,${reset}"
-                setup_storage
-            }
-                echo "  Storage is OK"
-            else
-                printf "Configuring termux setup storage...\n"
-                setup_storage
-            fi
             ;;
     esac
 }
@@ -86,8 +76,7 @@ function check_dependencies() {
     printf "\033[1;35mapt upgrade starting...${reset}\n"
     apt upgrade -y || {
         printf "\n${red}ERROR: Failed to upgrade packages.\n_______Please check the internet connection.\n\n"
-        read -p "$1[?] Do you want continue any way ??? [y/N] " ANS
-        printf "\n${reset}"
+        read -p "$1[?] Do you want continue any way ??? [y/N] " ANS;printf "\n${reset}"
         case "$ANS" in
             *y*|*Y*) echo "Continuing any way.";return 0;;
             *) echo "You have successfully logged out.";exit;;
@@ -102,8 +91,8 @@ function welcome_voice() {
   fi
 }
 function bootstrap_dir() {
-     check_dependencies
      check_Bootstrap_directory
+     check_dependencies
     if [ -f /sdcard/Termux-Bootstrap/welcome.mp3 ];then
         printf "${green}Welcome to Al-Amin Zone${reset}\n\n"
         play-audio /sdcard/Termux-Bootstrap/welcome.mp3
@@ -164,7 +153,7 @@ function setup_storage() {
         return 0
     }
     if [ -e $HOME/storage ]; then
-        echo "  Termux storage setup is OK"
+        echo "  Storage is OK"
         Bootstrap_directory
     else
         setup_storage
@@ -612,13 +601,13 @@ reset='\033[0m'
 
 cd $HOME
 case "$1" in
-	help|Help|HELP)
+	h*p|H*p|H*P)
 		print-help
 		;;
-	switch|Switch|SWITCH)
+	s*ch|S*ch|S*CH)
 		switch
 		;;
-	revert|Revert|REVERT)
+	r*t|R*t|R*T)
 		revert
 		;;
 	*Y*|*y*)
