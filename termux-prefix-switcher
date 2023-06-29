@@ -144,7 +144,7 @@ function print-help() {
 }
 
 function setup_storage() {
-    printf "\n${green} Allow the storage permission.${reset}\n"
+    printf "\n${green}";read -p " [#] Allow the storage permission. [Enter] ";printf "${reset}\n"
     termux-setup-storage ||:
     read -p " [#] Check the Termux storage permission. [Enter]"
     echo "check storage" >> /sdcard/.Al-Amin_Zone || {
@@ -162,20 +162,22 @@ function setup_storage() {
 
 function Bootstrap_directory() {
     if [ ! -d /sdcard/Termux-Bootstrap ]; then
-        printf "${yellow}Termux-Bootstrap directory creating${reset}\n\n"
         mkdir /sdcard/Termux-Bootstrap || {
              setup_storage
+             return 0
         }
+        printf "${yellow} [#] Termux-Bootstrap directory created.${reset}\n\n"
     fi
 }
 
 function check_Bootstrap_directory() {
     if [ -d /sdcard/Termux-Bootstrap ]; then
-        printf "${yellow}Termux-Bootstrap directory found${reset}\n\n"
+        printf "${yellow}[√] Termux-Bootstrap directory found.${reset}\n"
         echo "check storage" >> /sdcard/Termux-Bootstrap/.Al-Amin_Zone || {
             setup_storage
         }
     else
+        printf "${yellow}[!] Termux-Bootstrap directory not found.${reset}\n"
         Bootstrap_directory
     fi
 }
@@ -212,9 +214,6 @@ function switch() {
     esac
     print_banner
     check_Bootstrap_directory
-    printf "${light_cyan}"
-    read -p "Some warning message view in press [Enter]"
-    printf "${reset}"
     if [ -e $PREFIX/../usr32-backup ]; then
             printf "${yellow}[√] Arm 32-bit usr backup found${reset}\n\n"
             printf "${green}[★] Maybe you are already read warning message.${reset}"
@@ -226,7 +225,7 @@ function switch() {
                 N*|n*|*) revert32;exit;;
             esac
     fi
-    warning_msg
+    printf "${light_cyan}\n";read -p "[*] Some warning message view in press [Enter]";printf "${reset}";warning_msg
     if ask "Do you want to switch to 32-bit? All data in this environment will be lost" "N";then
         printf "${yellow}[!]Switching to 32-bit installation... Continuing Anyway!${reset}\n\n"
         check_dependencies
