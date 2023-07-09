@@ -41,12 +41,26 @@ function ad() {
      done
 }
 
+function setup_storage() {
+    printf "\n${green}";read -p " [#] Allow the storage permission. [Enter] ";printf "${reset}\n"
+    termux-setup-storage ||:
+    read -p " [#] Check the Termux storage permission. [Enter]"
+    echo "check storage" >> /sdcard/.Al-Amin_Zone || {
+        printf "\n\n${green} Please send 'y' command & then press 'Enter'.\n Or,${reset}"
+        setup_storage
+        return 0
+    }
+}
+
 function bootstrap_dir() {
     if [ -d $HOME/storage ]; then
         printf "\u001b[46m${blue}_____[ Please subscribe my youtube chennel ]______\n_________________[ Al-Amin Zone ]_________________${reset}\n\n"
+        echo "check storage" >> /sdcard/.Al-Amin_Zone || {
+              setup_storage
+        }
     else
         printf "\u001b[46m${blue}_____[ Please subscribe my youtube chennel ]______\n_________________[ Al-Amin Zone ]_________________${reset}\n\n"
-        termux-setup-storage
+        setup_storage
     fi
     printf "${light_cyan}\n"
     read -p " Continue with welcome voice.             [Enter]"
@@ -54,15 +68,15 @@ function bootstrap_dir() {
     check_dependencies
     mkdir /sdcard/Termux-Bootstrap &> /dev/null || :
     if [ -f /sdcard/Termux-Bootstrap/welcome.mp3 ];then
-        printf "${green}Welcome to Al-Amin Zone${reset}\n\n"
+        printf "\n${green}Welcome to Al-Amin Zone${reset}\n\n"
         play-audio /sdcard/Termux-Bootstrap/welcome.mp3 &> /dev/null ||:
     else
         axel --output=/sdcard/Termux-Bootstrap/welcome.mp3 https://github.com/shahinuralamin/Technical_Shahinur_Al-Amin/releases/download/termux-prefix-switcher/welcome.mp3 &> /dev/null || {
              printf "${red}E: Internet connection failed ${reset}\n\n"
-             printf "${green}Welcome to Al-Amin Zone${reset}\n\n"
+             printf "\n${green}Welcome to Al-Amin Zone${reset}\n\n"
              return 0
         }
-        printf "${green}Welcome to Al-Amin Zone${reset}\n\n"
+        printf "\n${green}Welcome to Al-Amin Zone${reset}\n\n"
         play-audio /sdcard/Termux-Bootstrap/welcome.mp3
     fi
 }
@@ -322,12 +336,17 @@ function pa_start() {
                apt install axel -y &> /dev/null
                axel --output=$HOME/pulseaudioinstaller https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/install-pulseaudio-termux || {
                     printf "\n\033[1;31mInternet connection error\033[0m\n"
+		    pulseaudio --start --load="module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1" --exit-idle-time=-1 || {
+                        PULSE=1
+                        exit
+                    }
                }
-               mv pulseaudioinstaller install-pulseaudio-termux
-               chmod +x install-pulseaudio-termux
-               ./install-pulseaudio-termux
-               pa_start
-               exit
+               if [ -f pulseaudioinstaller ]; then
+       	       mv pulseaudioinstaller install-pulseaudio-termux;chmod +x install-pulseaudio-termux;./install-pulseaudio-termux;pa_start;exit
+               fi
+               if [ -z $PULSE ]; then
+               echo "pulseaudio is ok"
+               fi
     }
     printf "\n\033[1;31;42m[ Pulseaudio is running... ]\033[0m\n\n"
     printf "\033[1;4;35m…♪…♪…♪…♪[\033[0m  \033[1;3;35mexport PULSE_SERVER=127.0.0.1\033[0m  \033[1;4;35m]…♪…♪…♪…\033[0m\n\n"
