@@ -2,17 +2,13 @@
 
 function unsupported_arch() {
     print_prefix_banner
-    printf "${red}"
-    echo "[*] Unsupported Architecture"
-    printf "${reset}"
+    printf "${red}[*] Unsupported Architecture${reset}\n"
     echo "You have successfully logged out."
     exit
 }
 
 function ask() {
-    # http://djm.me/ask
     while true; do
-
         if [ "${2:-}" = "Y" ]; then
             prompt="Y/n"
             default=Y
@@ -23,23 +19,29 @@ function ask() {
             prompt="y/n"
             default=
         fi
-
-        # Ask the question
         printf "${light_cyan}\n[?] "
         read -p "$1 [$prompt] " REPLY
-
-        # Default?
         if [ -z "$REPLY" ]; then
             REPLY=$default
         fi
-
         printf "${reset}"
-
-        # Check if the reply is valid
         case "$REPLY" in
             Y*|y*) return 0 ;;
             N*|n*) prefix || :
                    return 1 ;;
+        esac
+    done
+}
+
+function ask_switch_32() {
+    while true; do
+        printf "${light_cyan}\n[?] ";read -p "$1 [y/N] " REPLY;printf "${reset}"
+        if [ -z "$REPLY" ]; then
+            REPLY=N
+        fi
+        case "$REPLY" in
+            Y*|y*) warning_msg;revert32;exit;;
+            N*|n*) revert32;exit;;
         esac
     done
 }
@@ -217,13 +219,7 @@ function switch() {
     if [ -e $PREFIX/../usr32-backup ]; then
             printf "${yellow}[√] Arm 32-bit usr backup found${reset}\n\n"
             printf "${green}[★] Maybe you are already read warning message.${reset}"
-            printf "${light_cyan}\n"
-            read -p "$1[?] Do you want to read again this?... [y/N] " REPLY
-            printf "${reset}"
-            case "$REPLY" in
-                Y*|y*) warning_msg;revert32;exit;;
-                N*|n*|*) revert32;exit;;
-            esac
+            ask_switch_32 "Do you want to read again this?..."
     fi
     printf "${light_cyan}\n";read -p "[*] Some warning message view in press [Enter]";printf "${reset}";warning_msg
     if ask "Do you want to switch to 32-bit? All data in this environment will be lost" "N";then
