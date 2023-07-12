@@ -51,7 +51,7 @@ function ask() {
 
 function get_arch() {
     printf "${blue}[*] Checking your device & termux architecture ...\n"
-    printf "${yellow}[>] Your device architecture is ${green}[$device_arch] ${yellow}[<]\n[>] Your termux architecture is ${green}[$termux_arch] ${yellow}[<]${reset}\n"
+    printf "${yellow}[>] Your device architecture is ${green}[$device_arch] ${yellow}[<]\n[>] Your termux architecture is ${green}[$termux_arch] ${yellow}[<]\n${blue}"
     case $termux_arch in
         arm64-v8a|arm64-v8|aarch64|arm64)
             SYS_ARCH=arm64
@@ -71,10 +71,27 @@ function get_arch() {
     esac
 }
 
+function image_strings() {
+    read -p "$1[⤶] Enter the image you want to install: " REPLY
+    case "$REPLY" in
+        1) wimg="full";printf "${green}[√] You have selected NetHunter ${SYS_ARCH} (full)\n" ;;
+        2) wimg="minimal";printf "${green}[√] You have selected NetHunter ${SYS_ARCH} (minimal)\n" ;;
+        3) case ${SYS_ARCH} in
+               amd64|i386) printf "${red}      [!] NetHunter ${SYS_ARCH} (nano) not found.\n${blue}";image_strings ;;
+               arm64|armhf) wimg="nano";printf "${green}[√] You have selected NetHunter ${SYS_ARCH} (nano)\n" ;;
+           esac ;;
+        *) printf "${yellow}      [#] Please reply serial number.\n${blue}";image_strings ;;
+    esac
+}
+
 function set_strings() {
+    echo "      [1] NetHunter ${SYS_ARCH} (full)"
+    echo "      [2] NetHunter ${SYS_ARCH} (minimal)"
+    echo "      [3] NetHunter ${SYS_ARCH} (nano)"
+    image_strings
     CHROOT=kali-${SYS_ARCH}
-    IMAGE_NAME=kalifs-${SYS_ARCH}-full.tar.xz
-    SHA_NAME=kalifs-${SYS_ARCH}-full.sha512sum
+    IMAGE_NAME=kalifs-${SYS_ARCH}-${wimg}.tar.xz
+    SHA_NAME=kalifs-${SYS_ARCH}-${wimg}.sha512sum
     VOICE_NAME=$PREFIX/bin/kali_voice.tar.xz
     VOICE=/sdcard/kali_voice
     PHOTO=*Al_Amin*
@@ -125,7 +142,7 @@ function cleanup_voice_file() {
 
 function cleanup_voice_directory() {
     if [ -d $VOICE ]; then
-        if ask "Do you want delete ‎‎& extract newly??" "Y"; then
+        if ask "Do you want delete ‎‎& extract newly??" "N"; then
             rm -rf $VOICE
             printf "${red}[x] Voice directory deleted.${reset}\n"
         fi
@@ -165,6 +182,7 @@ function setup_storage() {
         setup_storage
         return 0
     }
+    printf "\n${green}[√] Congratulations! storage is Ok${reset}\n"
 }
 
 function check_dependencies() {
@@ -180,8 +198,7 @@ function check_dependencies() {
         printf "${blue}[*] Configuring termux setup storage...${reset}\n"
         setup_storage
     fi
-    echo "  Storage is OK"
-    for i in proot axel tar pulseaudio play-audio; do
+    for i in tar wget axel proot pulseaudio play-audio; do
         if [ -e $PREFIX/bin/$i ]; then
             echo "  $i is OK"
         else
@@ -515,7 +532,7 @@ function get_rootfs() {
     printf "${blue}[*] Downloading rootfs...${reset}\n\n"
     play-audio ${VOICE}/${VOICE12} &> /dev/null ||:
     get_url
-    axel ${EXTRA_ARGS} --alternate "$ROOTFS_URL"
+    wget ${EXTRA_ARGS} --continue "$ROOTFS_URL"
 }
 
 function get_voice() {
@@ -541,7 +558,7 @@ function get_sha() {
         if [ -f ${SHA_NAME} ]; then
             rm -f ${SHA_NAME}
         fi
-        axel ${EXTRA_ARGS} --alternate "${SHA_URL}"
+        wget ${EXTRA_ARGS} --continue "${SHA_URL}"
     fi
 }
 
@@ -574,10 +591,12 @@ function extract_voice() {
         KEEP_VOICE=1
     fi
     if [ -z $KEEP_VOICE ]; then
-        printf "\n${blue}[*] Extracting voice... ${reset}\n\n"
-        cd /sdcard && tar -xf $VOICE_NAME 2> /dev/null || : cd $HOME
-        printf "${yellow}[✔] You have successfully extracted voice${reset}\n\n"
-        play-audio ${VOICE}/${VOICE15} &> /dev/null ||:
+        if ask "Existing voice directory not found. Do you want extract voice?" "N"; then
+           printf "\n${blue}[*] Extracting voice... ${reset}\n\n"
+           cd /sdcard && tar -xf $VOICE_NAME 2> /dev/null || : cd $HOME
+           printf "${yellow}[✔] You have successfully extracted voice${reset}\n\n"
+           play-audio ${VOICE}/${VOICE15} &> /dev/null ||:
+        fi
     else
         printf "${yellow}[!] Using existing voice directory${reset}\n"
     fi
@@ -639,6 +658,7 @@ if [[ \$KALIUSR == "0" || ("\$#" != "0" && ("\$1" == "-r" || "\$1" == "-R")) ]];
         shift
     fi
 fi
+
 cmdline="proot \\
         --link2symlink \\
         -0 \\
@@ -646,7 +666,7 @@ cmdline="proot \\
         -b /dev \\
         -b /proc \\
         -b /sdcard \\
-        -b /storage/emulated/0 \\
+        -b /storage/emulated/0/ \\
         -b $CHROOT\$home:/dev/shm \\
         -w \$home \\
            /usr/bin/env -i \\
@@ -985,11 +1005,11 @@ get_arch
 set_strings
 check_dependencies
 check_update
-prepare_fs
 cleanup_voice_file
 get_voice
 extract_voice
 sound_setup
+prepare_fs
 get_rootfs
 get_sha
 verify_sha
