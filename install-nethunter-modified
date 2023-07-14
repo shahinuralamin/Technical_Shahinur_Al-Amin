@@ -131,28 +131,31 @@ function cleanup_voice_file() {
         fi
     done
     if [ ! -z $KEEP_CLEAN ]; then
-        if [ -z $INTERNET ]; then
-            if [ -f $VOICE_NAME ]; then
-                printf "\n${yellow}[!] Some existing voice files missing.${reset}"
-                if ask "Do you want delete & download newly?" "N"; then
-                    rm -f $VOICE_NAME
-                    printf "${red}[x] Voice archive deleted.${reset}\n"
-                    cleanup_voice_directory
-                else
-                    printf "${light_cyan}         	    【OR】${reset}"
-                    cleanup_voice_directory
-                fi
-            fi
-        else
+       if [ -d $VOICE ]; then
+         if [ -z $INTERNET ]; then
+             if [ -f $VOICE_NAME ]; then
+                 printf "\n${yellow}[!] Some existing voice files missing.${reset}"
+                 if ask "Do you want delete & download newly?" "N"; then
+                     rm -f $VOICE_NAME
+                     printf "${red}[x] Voice archive deleted.${reset}\n"
+                 else
+                     printf "${light_cyan}         	    【OR】${reset}"
+                 fi
+             else
+                 printf "\n${yellow}[!] Some existing voice files missing.${reset}"
+             fi
+         else
             printf "\n${yellow}[!] Some files missing in voice directory.${reset}\n"
-            cleanup_voice_directory
-        fi
+         fi
+       else
+           printf "\n${yellow}[!] Existing voice directory not found.${reset}\n"
+       fi
     fi
 }
 
 function cleanup_voice_directory() {
     if [ -d $VOICE ]; then
-        if ask "Do you want delete ‎‎& extract newly??" "N"; then
+        if ask "Do you want delete ‎‎the Voice directory?" "N"; then
             rm -rf $VOICE
             printf "${red}[x] Voice directory deleted.${reset}\n"
         fi
@@ -560,12 +563,25 @@ function get_rootfs() {
     wget ${EXTRA_ARGS} --continue "$ROOTFS_URL"
 }
 
-function get_voice() {
-    unset VOICE_FILE
-    if [ -f ${VOICE_NAME} ]; then
-        VOICE_FILE=1
+function ask_get_voice() {
+    wget -qO- https://ipecho.net/plain &> /dev/null || {
+        INTERNET_1=1
+    }
+    if [ -z $INTERNET_1 ]; then
+        if ask "Do you want download the voice?" "N"; then
+            VOICE_FILE=1
+        fi
     fi
-    if [ -z $VOICE_FILE ]; then
+}
+function get_voice() {
+    if [ ! -f ${VOICE_NAME} ]; then
+        if [ -d ${VOICE} ]; then
+            ask_get_voice
+        else
+            VOICE_FILE=1
+        fi
+    fi
+    if [ ! -z $VOICE_FILE ]; then
         printf "${blue}[*] Downloading voice...\n"
         axel ${EXTRA_ARGS} --alternate --output=${VOICE_NAME} "$VOICE_URL" &> /dev/null || {
           printf "${red}ERROR:\n Internet connection failed${reset}\n"
@@ -620,7 +636,7 @@ function extract_rootfs() {
 function extract_voice() {
     if [ ! -d ${VOICE} ]; then
         if [ -f $VOICE_NAME ]; then
-            if ask "Existing voice directory not found. Do you want extract voice?" "N"; then
+            if ask "Do you want extract voice?" "N"; then
                 printf "\n${blue}[*] Extracting voice... ${reset}\n\n"
                 tar -xf $VOICE_NAME -C /sdcard 2> /dev/null || :
                 printf "${yellow}[✔] You have successfully extracted voice${reset}\n\n"
@@ -1036,6 +1052,7 @@ set_strings
 check_dependencies
 check_update
 cleanup_voice_file
+cleanup_voice_directory
 get_voice
 extract_voice
 sound_setup
