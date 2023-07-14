@@ -234,7 +234,7 @@ function check_dependencies() {
     printf "\033[1;35mapt upgrade starting...${reset}\n"
     apt upgrade -y || {
         printf "\n${red}ERROR: Failed to upgrade packages.\n_______Please check the internet connection.\n\n"
-        read -p "$1[?] Do you want continue any way ??? [y/Enter] " ANS
+        read -p "$1[?] Do you want continue any way ??? [y/N] " ANS
         printf "\n${reset}"
         case "$ANS" in
         *y*|*Y*) echo "Continuing any way.";return 0;;
@@ -276,7 +276,7 @@ function check_update() {
 function update() {
     if [ ! -z $KEEP_UPDATE ]; then
         printf "${yellow}[≛] NetHunter installer new update found.\n${light_cyan}"
-        read -p "$1[?] Do you want update this?... [y/Enter] " REPLY;printf "${reset}\n"
+        read -p "$1[?] Do you want update this?... [y/N] " REPLY;printf "${reset}\n"
         case $REPLY in
             *y*|*Y*)
                printf "${yellow}[*] Updating NetHunter installer...${reset}\n\n"
