@@ -324,10 +324,9 @@ function check_update() {
     	  }
     	  while read line;do case $line in
              M023) KEEP_UPDATED=1 ;;
-             *) KEEP_UPDATE=1 ;;
+             *) KEEP_UPDATE=1;update ;;
     	  esac
     	  done < $PREFIX/bin/modified
-          update
         fi
     fi
     if [ ! -z $KEEP_UPDATED ]; then
@@ -359,14 +358,14 @@ function update() {
                printf "${green}[✔] Old NetHunter installer backup successfully\n"
                mv $PREFIX/bin/install-nethunter-modified install-nethunter-modified
                chmod +x install-nethunter-modified
-               printf "[✔] NetHunter installer successfully updated${reset}\n\n"
+               printf "[✔] New NetHunter installer successfully updated${reset}\n\n"
                echo "Again run script ./install-nethunter-modified"
                exit;;
           n|N) return 0;;
           *)   update_confirmation;;
         esac
         }
-        update_confirmation;printf "${reset}\n"
+        update_confirmation;printf "${reset}"
     fi
 }
 
