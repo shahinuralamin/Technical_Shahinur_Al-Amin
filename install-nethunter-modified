@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash -e
 
 VERSION=2020011601
-MODIFIED=020_14jul2023
+MODIFIED=019_14jul2023
 BASE_URL=https://kali.download/nethunter-images/current/rootfs
 VOICE_URL=https://github.com/shahinuralamin/Technical_Shahinur_Al-Amin/releases/download/install-nethunter-modified/kali_voice.tar.xz
 device_arch=$(getprop ro.product.cpu.abi)
@@ -51,7 +51,7 @@ function ask() {
 
 function get_arch() {
     printf "${blue}[*] Checking your device & termux architecture ...\n"
-    printf "${yellow}[>] Your device architecture is ${green}[$device_arch] ${yellow}[<]\n[>] Your termux architecture is ${green}[$termux_arch] ${yellow}[<]\n${blue}"
+    printf "${yellow}[>] Your device architecture is ${green}[$device_arch] ${yellow}[<]\n[>] Your termux architecture is ${green}[$termux_arch] ${yellow}[<]\n\033[1;35m"
     case $termux_arch in
         arm64-v8a|arm64-v8|aarch64|arm64)
             SYS_ARCH=arm64
@@ -72,16 +72,47 @@ function get_arch() {
 }
 
 function image_strings() {
-    printf "${light_cyan}"
-    read -p "$1[⤶] Enter the image you want to install: " REPLY
+    confirmation() {
+    read -p "$1 [Y/n] " REPLY
     case "$REPLY" in
-        1|f*|F*) wimg="full";printf "${green}[√] You have selected ${light_cyan}[${green}'${yellow}NetHunter ${SYS_ARCH} full${green}'${light_cyan}]\n" ;;
-        2|m*|M*) wimg="minimal";printf "${green}[√] You have selected ${light_cyan}[${green}'${yellow}NetHunter ${SYS_ARCH} minimal${green}'${light_cyan}]\n" ;;
+        N|n) image_strings ;;
+        *) return 0 ;;
+    esac
+    }
+    printf "${light_cyan}[=] Enter the image you want to install:"
+    printf "\033[1;35m";read -p "$1 " REPLY
+    case "$REPLY" in
+        1|f*|F*) wimg="full";printf "${green}[√] Selected ${yellow}NetHunter ${SYS_ARCH} full";confirmation;;
+        2|m*|M*) wimg="minimal";printf "${green}[√] Selected ${yellow}NetHunter ${SYS_ARCH} minimal";confirmation;;
         3|n*|N*) case ${SYS_ARCH} in
-               amd64|i386) printf "${red}      [!] NetHunter ${SYS_ARCH} (nano) not found.\n${blue}";image_strings ;;
-               arm64|armhf) wimg="nano";printf "${green}[√] You have selected ${light_cyan}[${green}'${yellow}NetHunter ${SYS_ARCH} nano${green}'${light_cyan}]\n" ;;
-           esac ;;
-        *) printf "${yellow}    [#] Reply the image serial number or letters.\n${blue}";image_strings ;;
+                 amd64|i386) printf "${red}      [!] NetHunter ${SYS_ARCH} (nano) not found.\n${blue}";image_strings;;
+                 arm64|armhf) wimg="nano";printf "${green}[√] Selected ${yellow}NetHunter ${SYS_ARCH} nano";confirmation;;
+                 esac ;;
+        *) printf "${yellow}    [#] Reply the image serial number or letters.\n${blue}";image_strings;;
+    esac
+}
+
+function set_storage() {
+    storage_confirmation() {
+    read -p "[C] Continueing any way or [S] setup again. [C/S] " REPLY
+    case "$REPLY" in
+         C|c) return 0;;
+         S|s) set_storage;;
+    esac
+    }
+    printf "\n${green}  [*] Your device's storage address list.\n"
+    i=0;for f in /storage/*/;do echo "  [$((++i))] $f"; done
+    printf "\n[#] Please copy &  paste external storage address${reset}\n"
+    read -p "$1" REPLY
+    case "$REPLY" in
+        /storage/emulated*|/storage/self*) echo "It's has your devices internal storage.";storage_confirmation;;
+        *) if [ -d $REPLY ]; then
+               EXTERNAL_MEMO=$REPLY
+               KEEP_STORAGE="-b $EXTERNAL_MEMO \\"
+           else
+               echo "External storage not found"
+               storage_confirmation
+           fi ;;
     esac
 }
 
@@ -116,18 +147,18 @@ function set_strings() {
 function checkup_internet() {
     printf "\n${blue}[*] Checking internet connection...${reset}\n"
     wget -qO- https://ipecho.net/plain &> /dev/null || {
-        printf "${red}[×] Internet connection is not ok.${reset}\n"
+        printf "${red}";read -p "[×] Internet connection is not ok. [Enter]"; printf "${reset}\n"
         INTERNET=1
     }
 }
 
 function cleanup_voice_file() {
     printf "${blue}\n[*] Checking voice files...${reset}\n"
-    for f in ${PHOTO} ${VOICE1} ${VOICE2} ${VOICE3} ${VOICE4} ${VOICE5} ${VOICE6} ${VOICE7} ${VOICE8} ${VOICE9} ${VOICE10} ${VOICE11} ${VOICE12} ${VOICE13} ${VOICE14} ${VOICE15}; do
-        if [ -e ${VOICE}/$f ]; then
-            printf "$f ${yellow}is OK ${green}[✔]\n${reset}"
+    for v in ${PHOTO} ${VOICE1} ${VOICE2} ${VOICE3} ${VOICE4} ${VOICE5} ${VOICE6} ${VOICE7} ${VOICE8} ${VOICE9} ${VOICE10} ${VOICE11} ${VOICE12} ${VOICE13} ${VOICE14} ${VOICE15}; do
+        if [ -e ${VOICE}/$v ]; then
+            printf "$v ${yellow}is OK ${green}[✔]\n${reset}"
         else
-            printf "$f ${red}Not found\n${reset}";KEEP_CLEAN=1
+            printf "$v ${red}Not found\n${reset}";KEEP_CLEAN=1
         fi
     done
     if [ ! -z $KEEP_CLEAN ]; then
@@ -244,6 +275,20 @@ function check_dependencies() {
         *) echo "You have successfully logged out.";exit;;
         esac
     }
+    if ask "Do you want added share storage in NetHunter?" "Y"; then
+        set_storage
+        if [ -d /storage/emulated/0/ ]; then
+            INTERNAL_MEMO=/storage/emulated/0/
+            KEEP_STORAGE1="-b $INTERNAL_MEMO \\"
+            printf "\n${green}[=] Successfully Added this storage.\n"
+            for s in $INTERNAL_MEMO $EXTERNAL_MEMO; do
+                if [ -d $s ]; then
+                    echo "    [√] $s is ok."
+                fi
+            done
+            printf "${reset}\n"
+        fi
+    fi
 }
 
 function check_update() {
@@ -260,7 +305,7 @@ function check_update() {
             return 0
     	  }
     	  while read line;do case $line in
-             M020)
+             M019)
             	KEEP_UPDATED=1
             	;;
              *)
@@ -712,7 +757,8 @@ cmdline="proot \\
         -b /dev \\
         -b /proc \\
         -b /sdcard \\
-        -b /storage/emulated/0/ \\
+        $KEEP_STORAGE
+        $KEEP_STORAGE1
         -b $CHROOT\$home:/dev/shm \\
         -w \$home \\
            /usr/bin/env -i \\
