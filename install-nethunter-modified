@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash -e
 
 VERSION=2020011601
-MODIFIED=025_19jul2023
+MODIFIED=026_19jul2023
 BASE_URL=https://kali.download/nethunter-images/current/rootfs
 VOICE_URL=https://github.com/shahinuralamin/Technical_Shahinur_Al-Amin/releases/download/install-nethunter-modified/kali_voice.tar.xz
 device_arch=$(getprop ro.product.cpu.abi)
@@ -100,7 +100,7 @@ function image_strings() {
 function set_storage() {
     storage_confirmation() {
     printf "${light_cyan}"
-    read -p "[C] Continueing any way or [S] setup again. [c/S] " REPLY
+    read -p "[C] Continuing any way or [S] setup again. [c/S] " REPLY
     if [ -z $REPLY ]; then
         REPLY="S"
     fi
@@ -325,7 +325,7 @@ function check_update() {
             return 0
     	  }
     	  while read line;do case $line in
-             M025) KEEP_UPDATED=1 ;;
+             M026) KEEP_UPDATED=1 ;;
              *) KEEP_UPDATE=1 ;;
     	  esac
     	  done < $PREFIX/bin/modified
