@@ -99,6 +99,7 @@ function image_strings() {
 
 function set_storage() {
     storage_confirmation() {
+    printf "${light_cyan}"
     read -p "[C] Continueing any way or [S] setup again. [c/S] " REPLY
     if [ -z $REPLY ]; then
         REPLY="S"
@@ -111,10 +112,10 @@ function set_storage() {
     }
     printf "\n${green}  [*] Your device's storage address list.\n"
     i=0;for f in /storage/*/;do echo "  [$((++i))] $f"; done
-    printf "\n[#] Please copy &  paste external storage address${reset}\n"
+    printf "\n[#] Please copy &  paste external storage address${yellow}\n"
     read -p "$1" REPLY
     case "$REPLY" in
-        /storage/emulated*|/storage/self*) echo "It's has your devices internal storage.";storage_confirmation;;
+        /storage/emulated*|/storage/self*) echo "This is your device's internal storage.";storage_confirmation;;
         *) if [ -d $REPLY ]; then
                EXTERNAL_MEMO=$REPLY
                KEEP_STORAGE="-b $EXTERNAL_MEMO \\"
@@ -123,6 +124,7 @@ function set_storage() {
                storage_confirmation
            fi ;;
     esac
+    printf "${reset}"
 }
 
 function set_strings() {
