@@ -73,20 +73,25 @@ function get_arch() {
 
 function image_strings() {
     confirmation() {
+    printf "${green}[√] Selected ${yellow}NetHunter ${SYS_ARCH} ${wimg}"
     read -p "$1 [Y/n] " REPLY
+    if [ -z $REPLY ]; then
+        REPLY="Y"
+    fi
     case "$REPLY" in
         N|n) image_strings ;;
-        *) return 0 ;;
+        Y|y) return 0 ;;
+        *) confirmation ;;
     esac
     }
     printf "${light_cyan}[=] Enter the image you want to install:"
     printf "\033[1;35m";read -p "$1 " REPLY
     case "$REPLY" in
-        1|f*|F*) wimg="full";printf "${green}[√] Selected ${yellow}NetHunter ${SYS_ARCH} full";confirmation;;
-        2|m*|M*) wimg="minimal";printf "${green}[√] Selected ${yellow}NetHunter ${SYS_ARCH} minimal";confirmation;;
+        1|f*|F*) wimg="full";confirmation;;
+        2|m*|M*) wimg="minimal";confirmation;;
         3|n*|N*) case ${SYS_ARCH} in
                  amd64|i386) printf "${red}      [!] NetHunter ${SYS_ARCH} (nano) not found.\n${blue}";image_strings;;
-                 arm64|armhf) wimg="nano";printf "${green}[√] Selected ${yellow}NetHunter ${SYS_ARCH} nano";confirmation;;
+                 arm64|armhf) wimg="nano";confirmation;;
                  esac ;;
         *) printf "${yellow}    [#] Reply the image serial number or letters.\n${blue}";image_strings;;
     esac
@@ -94,10 +99,14 @@ function image_strings() {
 
 function set_storage() {
     storage_confirmation() {
-    read -p "[C] Continueing any way or [S] setup again. [C/S] " REPLY
+    read -p "[C] Continueing any way or [S] setup again. [c/S] " REPLY
+    if [ -z $REPLY ]; then
+        REPLY="S"
+    fi
     case "$REPLY" in
          C|c) return 0;;
          S|s) set_storage;;
+         *) storage_confirmation;;
     esac
     }
     printf "\n${green}  [*] Your device's storage address list.\n"
@@ -194,9 +203,6 @@ function cleanup_voice_directory() {
 }
 
 function prepare_fs() {
-    get_rootfs_sha_verify() {
-    get_rootfs;get_sha;verify_sha
-    }
     unset KEEP_CHROOT
     if [ -d ${CHROOT} ]; then
         if ask "Existing rootfs directory found. Delete and create a new one?" "N"; then
@@ -204,15 +210,20 @@ function prepare_fs() {
         else
             KEEP_CHROOT=1
         fi
-        if [ ! -f ${IMAGE_NAME} ]; then
-            if ask "Do you want download the [${SYS_ARCH}-${wimg}] rootfs?" "N"; then
-                get_rootfs_sha_verify
+        wget -qO- https://ipecho.net/plain &> /dev/null || {
+            INTERNET_2=1
+        }
+        if [ -z $INTERNET_2 ]; then
+            if [ ! -f ${IMAGE_NAME} ]; then
+                if ask "Do you want download the [${SYS_ARCH}-${wimg}] rootfs?" "N"; then
+                    get_rootfs;get_sha;verify_sha
+                fi
+            else
+                get_rootfs;get_sha;verify_sha
             fi
-        else
-            get_rootfs_sha_verify
         fi
     else
-        get_rootfs_sha_verify
+        get_rootfs;get_sha;verify_sha
     fi
 }
 
@@ -268,12 +279,19 @@ function check_dependencies() {
     printf "\033[1;35mapt upgrade starting...${reset}\n"
     apt upgrade -y || {
         printf "\n${red}ERROR: Failed to upgrade packages.\n_______Please check the internet connection.\n\n"
+        error_confirmation() {
         read -p "$1[?] Do you want continue any way ??? [y/N] " ANS
         printf "\n${reset}"
+        if [ -z $ANS ]; then
+            ANS="N"
+        fi
         case "$ANS" in
-        *y*|*Y*) echo "Continuing any way.";return 0;;
-        *) echo "You have successfully logged out.";exit;;
+        Y|y) echo "Continuing any way.";return 0;;
+        N|n) echo "You have successfully logged out.";exit;;
+        *) error_confirmation;;
         esac
+        }
+        error_confirmation
     }
     if ask "Do you want added share storage in NetHunter?" "Y"; then
         set_storage
@@ -320,10 +338,13 @@ function check_update() {
 function update() {
     if [ ! -z $KEEP_UPDATE ]; then
         printf "${yellow}[≛] NetHunter installer new update found.\n${light_cyan}"
+        update_confirmation() {
         read -p "$1[?] Do you want update this?... [y/N] " REPLY;printf "${reset}\n"
+        if [ -z $REPLY ]; then
+            REPLY="N"
+        fi
         case $REPLY in
-            *y*|*Y*)
-               printf "${yellow}[*] Updating NetHunter installer...${reset}\n\n"
+          y|Y) printf "${yellow}[*] Updating NetHunter installer...${reset}\n\n"
                axel --output=$PREFIX/bin/install-nethunter-modified https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/install-nethunter-modified 2> /dev/null || {
                    printf "${red}ERROR:\n Failed to Checking install-nethunter-modified update.\n ${yellow}Continuing Anyway...\n${reset}"
                    return 0
@@ -340,12 +361,12 @@ function update() {
                chmod +x install-nethunter-modified
                printf "[✔] NetHunter installer successfully updated${reset}\n\n"
                echo "Again run script ./install-nethunter-modified"
-               exit
-               ;;
-            *)
-               return 0
-               ;;
+               exit;;
+          n|N) return 0;;
+          *)   update_confirmation;;
         esac
+        }
+        update_confirmation
     fi
 }
 
