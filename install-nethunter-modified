@@ -59,7 +59,7 @@ function get_arch() {
         armeabi|armv8l|armeabi-v7a|armv7l)
             SYS_ARCH=armhf
             ;;
-        x86_64|amd64)
+        x86_64|x64|amd64)
             SYS_ARCH=amd64
             ;;
         i386|i686|x86)
@@ -79,8 +79,8 @@ function image_strings() {
         REPLY="Y"
     fi
     case "$REPLY" in
-        N|n) image_strings ;;
-        Y|y) return 0 ;;
+        N*|n*) image_strings ;;
+        Y*|y*) return 0 ;;
         *) confirmation ;;
     esac
     }
@@ -105,8 +105,8 @@ function set_storage() {
         REPLY="S"
     fi
     case "$REPLY" in
-         C|c) return 0;;
-         S|s) set_storage;;
+         C*|c*) return 0;;
+         S*|s*) set_storage;;
          *) storage_confirmation;;
     esac
     }
@@ -184,7 +184,7 @@ function cleanup_voice_file() {
                      printf "${light_cyan}         	    【OR】${reset}"
                  fi
              else
-                 printf "\n${yellow}[!] Some existing voice files missing.${reset}"
+                 printf "\n${yellow}[!] Existing voice archive file not found.${reset}"
              fi
          else
             printf "\n${yellow}[!] Some files missing in voice directory.${reset}\n"
@@ -193,14 +193,14 @@ function cleanup_voice_file() {
            printf "\n${yellow}[!] Existing voice directory not found.${reset}\n"
        fi
     fi
-}
-
-function cleanup_voice_directory() {
     if [ -d $VOICE ]; then
         if ask "Do you want delete ‎‎the Voice directory?" "N"; then
             rm -rf $VOICE
             printf "${red}[x] Voice directory deleted.${reset}\n"
+            unset KEEP_CLEAN;cleanup_voice_file
         fi
+    else
+        extract_voice
     fi
 }
 
@@ -288,8 +288,8 @@ function check_dependencies() {
             ANS="N"
         fi
         case "$ANS" in
-        Y|y) echo "Continuing any way.";return 0;;
-        N|n) echo "You have successfully logged out.";exit;;
+        Y*|y*) echo "Continuing any way.";return 0;;
+        N*|n*) echo "You have successfully logged out.";exit;;
         *) error_confirmation;;
         esac
         }
@@ -325,7 +325,7 @@ function check_update() {
             return 0
     	  }
     	  while read line;do case $line in
-             M026) KEEP_UPDATED=1 ;;
+             M026*) KEEP_UPDATED=1 ;;
              *) KEEP_UPDATE=1 ;;
     	  esac
     	  done < $PREFIX/bin/modified
@@ -346,7 +346,7 @@ function update() {
             REPLY="N"
         fi
         case $REPLY in
-          y|Y) printf "${yellow}[*] Updating NetHunter installer...${reset}\n\n"
+          Y*|y*) printf "${yellow}[*] Updating NetHunter installer...${reset}\n\n"
                axel --output=$PREFIX/bin/install-nethunter-modified https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/install-nethunter-modified 2> /dev/null || {
                    printf "${red}ERROR:\n Failed to Checking install-nethunter-modified update.\n ${yellow}Continuing Anyway...\n${reset}"
                    return 0
@@ -364,7 +364,7 @@ function update() {
                printf "[✔] New NetHunter installer successfully updated${reset}\n\n"
                echo "Again run script ./install-nethunter-modified"
                exit;;
-          n|N) return 0;;
+          N*|y*) return 0;;
           *)   update_confirmation;;
         esac
         }
@@ -705,6 +705,7 @@ function extract_voice() {
                 tar -xf $VOICE_NAME -C /sdcard 2> /dev/null || :
                 printf "${yellow}[✔] You have successfully extracted voice${reset}\n\n"
                 play-audio ${VOICE}/${VOICE15} &> /dev/null ||:
+                unset KEEP_CLEAN;cleanup_voice_file
             fi
         fi
     else
@@ -1117,9 +1118,7 @@ set_strings
 check_dependencies
 check_update
 cleanup_voice_file
-cleanup_voice_directory
 get_voice
-extract_voice
 sound_setup
 prepare_fs
 extract_rootfs
