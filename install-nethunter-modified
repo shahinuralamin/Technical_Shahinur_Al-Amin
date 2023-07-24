@@ -156,15 +156,15 @@ function set_strings() {
 }
 
 function checkup_internet() {
-    printf "\n${blue}[*] Checking internet connection...${reset}\n"
+    unset INTERNET
     wget -qO- https://ipecho.net/plain &> /dev/null || {
-        printf "${red}";read -p "[×] Internet connection is not ok. [Enter]"; printf "${reset}\n"
         INTERNET=1
     }
 }
 
 function cleanup_voice_file() {
     printf "${blue}\n[*] Checking voice files...${reset}\n"
+    unset KEEP_CLEAN
     for v in ${PHOTO} ${VOICE1} ${VOICE2} ${VOICE3} ${VOICE4} ${VOICE5} ${VOICE6} ${VOICE7} ${VOICE8} ${VOICE9} ${VOICE10} ${VOICE11} ${VOICE12} ${VOICE13} ${VOICE14} ${VOICE15}; do
         if [ -e ${VOICE}/$v ]; then
             printf "$v ${yellow}is OK ${green}[✔]\n${reset}"
@@ -173,34 +173,30 @@ function cleanup_voice_file() {
         fi
     done
     if [ ! -z $KEEP_CLEAN ]; then
-       if [ -d $VOICE ]; then
+         checkup_internet
          if [ -z $INTERNET ]; then
              if [ -f $VOICE_NAME ]; then
                  printf "\n${yellow}[!] Some existing voice files missing.${reset}"
-                 if ask "Do you want delete & download newly?" "N"; then
+                 if ask "Do you want delete the voice archive file & download newly?" "N"; then
                      rm -f $VOICE_NAME
                      printf "${red}[x] Voice archive deleted.${reset}\n"
-                 else
-                     printf "${light_cyan}         	    【OR】${reset}"
+                     get_voice;return
                  fi
              else
-                 printf "\n${yellow}[!] Existing voice archive file not found.${reset}"
+                 get_voice;return
              fi
          else
             printf "\n${yellow}[!] Some files missing in voice directory.${reset}\n"
          fi
-       else
-           printf "\n${yellow}[!] Existing voice directory not found.${reset}\n"
-       fi
     fi
     if [ -d $VOICE ]; then
         if ask "Do you want delete ‎‎the Voice directory?" "N"; then
             rm -rf $VOICE
             printf "${red}[x] Voice directory deleted.${reset}\n"
-            unset KEEP_CLEAN;cleanup_voice_file
+            cleanup_voice_file
         fi
     else
-        extract_voice
+        extract_voice;return
     fi
 }
 
@@ -212,17 +208,15 @@ function prepare_fs() {
         else
             KEEP_CHROOT=1
         fi
-        wget -qO- https://ipecho.net/plain &> /dev/null || {
-            INTERNET_2=1
-        }
-        if [ -z $INTERNET_2 ]; then
-            if [ ! -f ${IMAGE_NAME} ]; then
+        if [ ! -f ${IMAGE_NAME} ]; then
+            checkup_internet
+            if [ -z $INTERNET ]; then
                 if ask "Do you want download the [${SYS_ARCH}-${wimg}] rootfs?" "N"; then
                     get_rootfs;get_sha;verify_sha
                 fi
-            else
-                get_rootfs;get_sha;verify_sha
             fi
+        else
+            get_rootfs;get_sha;verify_sha
         fi
     else
         get_rootfs;get_sha;verify_sha
@@ -315,6 +309,7 @@ function check_update() {
     if [ -f $PREFIX/bin/modified ]; then
         rm -f $PREFIX/bin/modified
     fi
+    printf "\n${blue}[*] Checking internet connection...${reset}\n"
     checkup_internet
     if [ -z $INTERNET ]; then
         printf "${green}[√] Internet connection is ok.${reset}\n"
@@ -331,6 +326,8 @@ function check_update() {
     	  done < $PREFIX/bin/modified
           update
         fi
+    else
+        printf "${red}";read -p "[×] Internet connection is not ok. [Enter]"; printf "${reset}\n"
     fi
     if [ ! -z $KEEP_UPDATED ]; then
          printf "${red}[${green}✔${red}] ${yellow}NetHunter installer up to date${reset}";read -p " Press 〈ENTER〉 "
@@ -627,20 +624,17 @@ function get_rootfs() {
     wget ${EXTRA_ARGS} --continue "$ROOTFS_URL"
 }
 
-function ask_get_voice() {
-    wget -qO- https://ipecho.net/plain &> /dev/null || {
-        INTERNET_1=1
-    }
-    if [ -z $INTERNET_1 ]; then
-        if ask "Do you want download the voice?" "N"; then
-            VOICE_FILE=1
-        fi
-    fi
-}
 function get_voice() {
     if [ ! -f ${VOICE_NAME} ]; then
+        printf "\n${yellow}[!] Existing voice archive file not found.${reset}\n"
+        unset VOICE_FILE
         if [ -d ${VOICE} ]; then
-            ask_get_voice
+            checkup_internet
+            if [ -z $INTERNET ]; then
+                if ask "Do you want download the voice?" "N"; then
+                    VOICE_FILE=1
+                fi
+            fi
         else
             VOICE_FILE=1
         fi
@@ -651,7 +645,10 @@ function get_voice() {
           printf "${red}ERROR:\n Internet connection failed${reset}\n"
           return 0
         }
-       printf "${green}[√] Successfully downloaded.${reset}\n"
+        printf "${green}[√] Successfully downloaded.${reset}\n"
+        extract_voice
+    else
+        cleanup_voice_file
     fi
 }
 
@@ -699,17 +696,19 @@ function extract_rootfs() {
 
 function extract_voice() {
     if [ ! -d ${VOICE} ]; then
+        printf "\n${yellow}[!] Existing voice directory not found.${reset}\n"
         if [ -f $VOICE_NAME ]; then
             if ask "Do you want extract voice?" "N"; then
                 printf "\n${blue}[*] Extracting voice... ${reset}\n\n"
                 tar -xf $VOICE_NAME -C /sdcard 2> /dev/null || :
                 printf "${yellow}[✔] You have successfully extracted voice${reset}\n\n"
                 play-audio ${VOICE}/${VOICE15} &> /dev/null ||:
-                unset KEEP_CLEAN;cleanup_voice_file
+                cleanup_voice_file
             fi
         fi
     else
         printf "${yellow}[!] Using existing voice directory${reset}\n"
+        cleanup_voice_file
     fi
 }
 
@@ -738,7 +737,7 @@ pulseaudio --start --load="module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth
         if [ -f pulseaudioinstaller ]; then
         mv pulseaudioinstaller install-pulseaudio-termux;chmod +x install-pulseaudio-termux;./install-pulseaudio-termux;\$PREFIX/bin/pa;
         fi
-        if [ -z $PULSE ]; then
+        if [ -z \$PULSE ]; then
             echo "pulseaudio is ok"
         fi
 }
@@ -1117,7 +1116,6 @@ get_arch
 set_strings
 check_dependencies
 check_update
-cleanup_voice_file
 get_voice
 sound_setup
 prepare_fs
