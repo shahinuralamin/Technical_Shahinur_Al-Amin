@@ -358,12 +358,12 @@ function update() {
                    mv install-nethunter-modified backup/install-nethunter-modified
               	   printf "${green}[✔] Old NetHunter installer backup successfully\n"
                else
-                   printf "\n${green}Command type 'cd'\n"
+                   printf "${red}[x] Old NetHunter installer not found.${green}\n"
                fi
                mv $PREFIX/bin/install-nethunter-modified install-nethunter-modified
                chmod +x install-nethunter-modified
                printf "[✔] New NetHunter installer successfully updated${reset}\n\n"
-               echo "Again run script ./install-nethunter-modified"
+               echo "Again run script cd;./install-nethunter-modified"
                exit;;
           N*|y*) return 0;;
           *)   update_confirmation;;
