@@ -116,14 +116,45 @@ function set_storage() {
     read -p "$1" REPLY
     case "$REPLY" in
         /storage/emulated*|/storage/self*) echo "This is your device's internal storage.";storage_confirmation;;
-        *) if [ -d $REPLY ]; then
-               EXTERNAL_MEMO=$REPLY
-               KEEP_STORAGE="-b $EXTERNAL_MEMO \\"
+        *) if [ ! -z $REPLY ]; then
+                if [ -d $REPLY ]; then
+                    EXTERNAL_MEMO=$REPLY
+                    KEEP_STORAGE="-b $EXTERNAL_MEMO \\"
+                else
+                    echo "External storage not found"
+                    storage_confirmation
+                fi
            else
-               echo "External storage not found"
-               storage_confirmation
-           fi ;;
+                EXTERNAL_MEMO="/sdcard/kali_setup"
+                KEEP_STORAGE="-b $EXTERNAL_MEMO \\"
+           fi   ;;
     esac
+    if [ -d /storage/emulated/0/ ]; then
+        INTERNAL_MEMO=/storage/emulated/0/
+        KEEP_STORAGE1="-b $INTERNAL_MEMO \\"
+    else
+        printf "\n${red}[x] Internal storage not found"
+        internal_storage_set() {
+        printf "\n${green}  [*] Your device's storage address list.\n"
+        i=0;for f in /storage/*/;do echo "  [$((++i))] $f"; done
+        printf "\n${blue}[#] Please copy &  paste internal storage address${yellow}\n"
+        read -p "$1" REPLY
+        case "$REPLY" in
+          *) if [ ! -z $REPLY ]; then
+                 if [ -d $REPLY ]; then
+                     INTERNAL_MEMO=$REPLY
+                     KEEP_STORAGE1="-b $INTERNAL_MEMO \\"
+                 else
+                     echo "Internal storage not found"
+                     storage_confirmation
+                 fi
+             else
+                 internal_storage_set
+             fi;;
+        esac
+        }
+        internal_storage_set
+    fi
     printf "${reset}"
 }
 
@@ -176,17 +207,21 @@ function cleanup_voice_file() {
          checkup_internet
          if [ -z $INTERNET ]; then
              if [ -f $VOICE_NAME ]; then
-                 printf "\n${yellow}[!] Some existing voice files missing.${reset}"
+                 printf "\n${yellow}[!] Maybe some existing voice files missing.${reset}"
                  if ask "Do you want delete the voice archive file & download newly?" "N"; then
                      rm -f $VOICE_NAME
                      printf "${red}[x] Voice archive deleted.${reset}\n"
                      get_voice;return
+                 else
+                     if [ -d $VOICE ]; then
+                         printf "\n${yellow}                    [↡] Or [↡]\n"
+                     fi
                  fi
              else
                  get_voice;return
              fi
          else
-            printf "\n${yellow}[!] Some files missing in voice directory.${reset}\n"
+            printf "\n${yellow}[!] Maybe some files missing in voice directory.${reset}\n"
          fi
     fi
     if [ -d $VOICE ]; then
@@ -201,13 +236,32 @@ function cleanup_voice_file() {
 }
 
 function prepare_fs() {
-    unset KEEP_CHROOT
+    confirmation_chroot() {
+    read -p "[?] Enter your decision you want to restore or delete backup and create a new one? " REPLY
+    printf "${reset}"
+    case "$REPLY" in
+        1) mv ${CHROOT}-${wimg} ${CHROOT};printf "\n${green}Successfully ${CHROOT}-${wimg} backup restored.${reset}\n";;
+        2) printf "\n${red}Deleting ${CHROOT}-${wimg} backup directory...\n";rm -rf ${CHROOT}-${wimg};printf "${green}Successfully ${CHROOT}-${wimg} backup deleted.\nContinuing create a new one.${reset}\n";get_rootfs;get_sha;verify_sha;;
+        3) printf "\n${red}"
+           echo "      [1] Cancel   'Create a new one'"
+           echo "      [2] Return   'Search rootfs directory'"
+           echo "      [3] Exit     'Log out'"
+           exit_confirmation() {
+           read -p "Enter your decision you want to cancel or return or exit. " REPLY
+           printf "${reset}"
+               case "$REPLY" in
+                   1) get_rootfs;get_sha;verify_sha;;
+                   2) prepare_fs;;
+                   3) echo "You have successfully logged out.";exit;;
+                   *) exit_confirmation
+               esac
+           }
+           exit_confirmation;;
+        *) confirmation_chroot;;
+    esac
+    printf "${reset}"
+    }
     if [ -d ${CHROOT} ]; then
-        if ask "Existing rootfs directory found. Delete and create a new one?" "N"; then
-            rm -rf ${CHROOT}
-        else
-            KEEP_CHROOT=1
-        fi
         if [ ! -f ${IMAGE_NAME} ]; then
             checkup_internet
             if [ -z $INTERNET ]; then
@@ -215,11 +269,135 @@ function prepare_fs() {
                     get_rootfs;get_sha;verify_sha
                 fi
             fi
+        fi
+        if [ -f ${CHROOT}/${wimg}.txt ];then
+            printf "\n${yellow}[*] Existing rootfs  directory found.${reset}\n"
+            if ask "Do you want backup or delete and create a new one?" "N"; then
+                printf "${blue}"
+                echo "       [1] NetHunter ${CHROOT}-${wimg} Backup"
+                echo "       [2] NetHunter ${CHROOT}-${wimg} Delete"
+                echo "       [3] Return"
+                buckup_confirmation() {
+                read -p "[?] Enter your decision you want to backup or delete? " REPLY
+                printf "${reset}"
+                case "$REPLY" in
+                    1) if [ -d ${CHROOT}-${wimg} ]; then
+                           printf "\n${yellow}[*] Found your previous ${CHROOT}-${wimg} backup directory.${reset}\n"
+                           if ask "Do you want delete your previous ${CHROOT}-${wimg} backup directory?" "N"; then
+                               printf "${red}[×] Deleting your previous ${CHROOT}-${wimg} backup directory...\n"
+                               rm -rf ${CHROOT}-${wimg};mv ${CHROOT} ${CHROOT}-${wimg};echo "You have successfully backed up ${CHROOT}-${wimg} newly.";prepare_fs
+                           else
+                               printf "\n${red}You have unsuccessfully backed up ${CHROOT}-${wimg}.${reset}\n"
+                               continuing_backup_confirmation() {
+                               read -p "[?] Continuing any way?. [y/N]" REPLY
+                               if [ -z $REPLY ]; then
+                                   REPLY="N"
+                               fi
+                               case "$REPLY" in
+                                   Y*|y*) return;;
+                                   N*|n*) prepare_fs;;
+                                   *) continuing_backup_confirmation
+                               esac
+                               }
+                           fi
+                       else
+                           mv ${CHROOT} ${CHROOT}-${wimg};printf "\n${green}You have successfully backed up ${CHROOT}-${wimg}.${reset}\n";prepare_fs
+                       fi;;
+                    2) printf "\n${red}Deleting ${CHROOT} directory...${reset}\n";rm -rf ${CHROOT};echo "You have successfully deleted ${CHROOT}";prepare_fs;;
+                    3) prepare_fs;;
+                    *) buckup_confirmation;;
+                esac
+                }
+                buckup_confirmation
+            fi
+        else
+            finding_vrsn() {
+            if [ -f ${CHROOT}/${VRSN}.txt ];then
+             printf "\n${yellow}[*] Existing rootfs ${CHROOT}-${VRSN} directory found.${reset}\n"
+             if ask "Do you want backup or delete and create a new one?" "N"; then
+                printf "${blue}"
+                echo "       [1] NetHunter ${CHROOT}-${VRSN} Backup"
+                echo "       [2] NetHunter ${CHROOT}-${VRSN} Delete"
+                echo "       [3] Return"
+                buckup_confirmation() {
+                read -p "Enter your decision you want to backup or delete " REPLY
+                printf "${reset}"
+                case "$REPLY" in
+                    1) if [ -d ${CHROOT}-${VRSN} ]; then
+                           printf "\n${yellow}[*] Found your previous ${CHROOT}-${VRSN} backup directory.${reset}\n"
+                           if ask "Do you want delete your previous ${CHROOT}-${VRSN} backup directory?" "N"; then
+                               printf "${red}[×] Deleting your previous ${CHROOT}-${VRSN} backup directory...\n"
+                               rm -rf ${CHROOT}-${VRSN};mv ${CHROOT} ${CHROOT}-${VRSN};echo "You have successfully backed up ${CHROOT}-${VRSN} newly.";prepare_fs
+                           else
+                               printf "\n${red}[×] You have unsuccessfully backed up ${CHROOT}-${VRSN}.\n"
+                               continuing_backup_confirmation() {
+                               read -p "[?] Continuing any way?. [y/N]" REPLY
+                               if [ -z $REPLY ]; then
+                                   REPLY="N"
+                               fi
+                               case "$REPLY" in
+                                   Y*|y*) return;;
+                                   N*|n*) finding_vrsn;;
+                                   *) continuing_backup_confirmation
+                               esac
+                               }
+                           fi
+                       else
+                           mv ${CHROOT} ${CHROOT}-${VRSN};echo "You have successfully backed up ${CHROOT}-${VRSN}.";prepare_fs
+                       fi;;
+                    2) printf "\n${red}Deleting ${CHROOT} directory...${reset}\n";rm -rf ${CHROOT};echo "You have successfully deleted ${CHROOT}";prepare_fs;;
+                    3) prepare_fs;;
+                    *) buckup_confirmation;;
+                esac
+                }
+                buckup_confirmation
+             fi
+            fi
+            }
+            last_time_vrsn() {
+            if ask "Did you install the ${CHROOT} ${wimg} image last time?" "N"; then
+                read -p "Yes I installed ${CHROOT} ${wimg} version last time. [Y/n]" REPLY
+                if [ -z $REPLY ]; then
+                    REPLY="Y"
+                fi
+                case "$REPLY" in
+                    Y*|y*) echo "Al-Amin Zone" >> ${CHROOT}/${wimg}.txt;prepare_fs;;
+                    N*|y*) printf "\n${blue}"
+                           echo "       [1] ${CHROOT} 'Full'"
+                           echo "       [2] ${CHROOT} 'Minimal'"
+                           echo "       [3] ${CHROOT} 'Nano'"
+                           read -p "[?] What was the last image installation?" REPLY
+                           printf "${reset}"
+                           case "$REPLY" in
+                               1) echo "Al-Amin Zone" >> ${CHROOT}/full.txt;prepare_fs;;
+                               2) echo "Al-Amin Zone" >> ${CHROOT}/minimal.txt;prepare_fs;;
+                               3) echo "Al-Amin Zone" >> ${CHROOT}/nano.txt;prepare_fs;;
+                               *) last_time_vrsn;;
+                           esac;;
+                esac
+            fi
+            }
+            if [ -f ${CHROOT}/full.txt ]; then
+                VRSN="full";finding_vrsn
+            elif [ -f ${CHROOT}/minimal.txt ]; then
+                VRSN="minimal";finding_vrsn
+            elif [ -f ${CHROOT}/nano.txt ]; then
+                VRSN="nano";finding_vrsn
+            else
+                last_time_vrsn
+            fi
+        fi
+    else
+        printf "\n${yellow}[*] Rootfs ${CHROOT} directory not found.${resetl}\n"
+        if [ -d ${CHROOT}-${wimg} ]; then
+            printf "\n${yellow}[√] ${CHROOT}-${wimg} backup found.${blue}\n"
+            echo "       [1] ${CHROOT}-${wimg} backup Restore"
+            echo "       [2] ${CHROOT}-${wimg} backup Delete"
+            echo "       [3] Cancel return and exit"
+            confirmation_chroot
         else
             get_rootfs;get_sha;verify_sha
         fi
-    else
-        get_rootfs;get_sha;verify_sha
     fi
 }
 
@@ -291,17 +469,13 @@ function check_dependencies() {
     }
     if ask "Do you want added share storage in NetHunter?" "Y"; then
         set_storage
-        if [ -d /storage/emulated/0/ ]; then
-            INTERNAL_MEMO=/storage/emulated/0/
-            KEEP_STORAGE1="-b $INTERNAL_MEMO \\"
-            printf "\n${green}[=] Successfully Added this storage.\n"
-            for s in $INTERNAL_MEMO $EXTERNAL_MEMO; do
-                if [ -d $s ]; then
-                    echo "    [√] $s is ok."
-                fi
-            done
-            printf "${reset}\n"
-        fi
+        printf "\n${green}[=] Successfully Added this storage.\n"
+        for s in $INTERNAL_MEMO $EXTERNAL_MEMO; do
+            if [ -d $s ]; then
+                echo "    [√] $s is ok."
+            fi
+        done
+        printf "${reset}\n"
     fi
 }
 
@@ -686,12 +860,15 @@ function verify_sha() {
 }
 
 function extract_rootfs() {
-    if [ -z $KEEP_CHROOT ]; then
-        printf "\n${blue}[*] Extracting rootfs... ${reset}\n\n"
-        play-audio ${VOICE}/${VOICE13} &> /dev/null ||:
-        proot --link2symlink tar -xf $IMAGE_NAME 2> /dev/null || :
-        printf "${yellow}[✔] You have successfully extracted rootfs${reset}\n\n"
-        play-audio ${VOICE}/${VOICE15} &> /dev/null ||:
+    if [ ! -d $CHROOT ]; then
+        if [ -f $IMAGE_NAME ]; then
+            printf "\n${blue}[*] Extracting rootfs... ${reset}\n\n"
+            play-audio ${VOICE}/${VOICE13} &> /dev/null ||:
+            proot --link2symlink tar -xf $IMAGE_NAME 2> /dev/null || :
+            printf "${yellow}[✔] You have successfully extracted rootfs${reset}\n\n"
+            play-audio ${VOICE}/${VOICE15} &> /dev/null ||:
+            echo "Al-Amin Zone" >> ${CHROOT}/${wimg}.txt
+        fi
     else
         printf "${yellow}[!] Using existing rootfs directory${reset}\n"
         play-audio ${VOICE}/${VOICE14} &> /dev/null ||:
