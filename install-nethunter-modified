@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash -e
 
 VERSION=2020011601
-MODIFIED=030_28jul2023
+MODIFIED=029_24jul2023
 BASE_URL=https://kali.download/nethunter-images/current/rootfs
 VOICE_URL=https://github.com/shahinuralamin/Technical_Shahinur_Al-Amin/releases/download/install-nethunter-modified/kali_voice.tar.xz
 device_arch=$(getprop ro.product.cpu.abi)
@@ -110,8 +110,8 @@ function set_storage() {
          *) storage_confirmation;;
     esac
     }
-    printf "\n${green}  [*] Your device's storage address list.\n"
-    i=0;for f in /storage/*/;do echo "  [$((++i))] $f"; done
+    printf "\n${blue}[*] Your device's storage address list.${green}\n"
+    i=0;for f in /storage/*/;do echo "    [$((++i))] $f"; done
     printf "\n[#] Please copy &  paste external storage address${yellow}\n"
     read -p "$1" REPLY
     case "$REPLY" in
@@ -135,8 +135,8 @@ function set_storage() {
     else
         printf "\n${red}[x] Internal storage not found"
         internal_storage_set() {
-        printf "\n${green}  [*] Your device's storage address list.\n"
-        i=0;for f in /storage/*/;do echo "  [$((++i))] $f"; done
+        printf "\n${blue}[*] Your device's storage address list.${green}\n"
+        i=0;for f in /storage/*/;do echo "    [$((++i))] $f"; done
         printf "\n${blue}[#] Please copy &  paste internal storage address${yellow}\n"
         read -p "$1" REPLY
         case "$REPLY" in
@@ -243,9 +243,9 @@ function prepare_fs() {
         1) mv ${CHROOT}-${wimg} ${CHROOT};printf "\n${green}Successfully ${CHROOT}-${wimg} backup restored.${reset}\n";;
         2) printf "\n${red}Deleting ${CHROOT}-${wimg} backup directory...\n";rm -rf ${CHROOT}-${wimg};printf "${green}Successfully ${CHROOT}-${wimg} backup deleted.\nContinuing create a new one.${reset}\n";get_rootfs;get_sha;verify_sha;;
         3) printf "\n${red}"
-           echo "      [1] Cancel   'Create a new one'"
-           echo "      [2] Return   'Search rootfs directory'"
-           echo "      [3] Exit     'Log out'"
+           echo "       [1] Cancel   'Create a new one'"
+           echo "       [2] Return   'Search rootfs directory'"
+           echo "       [3] Exit     'Log out'"
            exit_confirmation() {
            read -p "Enter your decision you want to cancel or return or exit. " REPLY
            printf "${reset}"
@@ -271,6 +271,7 @@ function prepare_fs() {
             fi
         fi
         if [ -f ${CHROOT}/${wimg}.txt ];then
+            if ask "Are you sure it's ${CHROOT}-${wimg} existing rootfs  directory?" "Y"; then
             printf "\n${yellow}[*] Existing rootfs  directory found.${reset}\n"
             if ask "Do you want backup or delete and create a new one?" "N"; then
                 printf "${blue}"
@@ -284,12 +285,12 @@ function prepare_fs() {
                     1) if [ -d ${CHROOT}-${wimg} ]; then
                            printf "\n${yellow}[*] Found your previous ${CHROOT}-${wimg} backup directory.${reset}\n"
                            if ask "Do you want delete your previous ${CHROOT}-${wimg} backup directory?" "N"; then
-                               printf "${red}[×] Deleting your previous ${CHROOT}-${wimg} backup directory...\n"
+                               printf "${red}[x] Deleting your previous ${CHROOT}-${wimg} backup directory...\n"
                                rm -rf ${CHROOT}-${wimg};mv ${CHROOT} ${CHROOT}-${wimg};echo "You have successfully backed up ${CHROOT}-${wimg} newly.";prepare_fs
                            else
                                printf "\n${red}You have unsuccessfully backed up ${CHROOT}-${wimg}.${reset}\n"
                                continuing_backup_confirmation() {
-                               read -p "[?] Continuing any way?. [y/N]" REPLY
+                               read -p "[?] Continuing any way?. [y/N] " REPLY
                                if [ -z $REPLY ]; then
                                    REPLY="N"
                                fi
@@ -310,8 +311,12 @@ function prepare_fs() {
                 }
                 buckup_confirmation
             fi
+            else
+                rm -f ${CHROOT}/${wimg}.txt;prepare_fs
+            fi
         else
             finding_vrsn() {
+            if ask "Are you sure it's ${CHROOT}-${VRSN} existing rootfs  directory?" "Y"; then
             if [ -f ${CHROOT}/${VRSN}.txt ];then
              printf "\n${yellow}[*] Existing rootfs ${CHROOT}-${VRSN} directory found.${reset}\n"
              if ask "Do you want backup or delete and create a new one?" "N"; then
@@ -326,12 +331,12 @@ function prepare_fs() {
                     1) if [ -d ${CHROOT}-${VRSN} ]; then
                            printf "\n${yellow}[*] Found your previous ${CHROOT}-${VRSN} backup directory.${reset}\n"
                            if ask "Do you want delete your previous ${CHROOT}-${VRSN} backup directory?" "N"; then
-                               printf "${red}[×] Deleting your previous ${CHROOT}-${VRSN} backup directory...\n"
+                               printf "${red}[x] Deleting your previous ${CHROOT}-${VRSN} backup directory...\n"
                                rm -rf ${CHROOT}-${VRSN};mv ${CHROOT} ${CHROOT}-${VRSN};echo "You have successfully backed up ${CHROOT}-${VRSN} newly.";prepare_fs
                            else
-                               printf "\n${red}[×] You have unsuccessfully backed up ${CHROOT}-${VRSN}.\n"
+                               printf "\n${red}[x] You have unsuccessfully backed up ${CHROOT}-${VRSN}.\n"
                                continuing_backup_confirmation() {
-                               read -p "[?] Continuing any way?. [y/N]" REPLY
+                               read -p "[?] Continuing any way?. [y/N] " REPLY
                                if [ -z $REPLY ]; then
                                    REPLY="N"
                                fi
@@ -353,29 +358,46 @@ function prepare_fs() {
                 buckup_confirmation
              fi
             fi
+            else
+                rm -f ${CHROOT}/${wimg}.txt;prepare_fs
+            fi
             }
             last_time_vrsn() {
-            if ask "Did you install the ${CHROOT} ${wimg} image last time?" "N"; then
-                read -p "Yes I installed ${CHROOT} ${wimg} version last time. [Y/n]" REPLY
-                if [ -z $REPLY ]; then
-                    REPLY="Y"
-                fi
-                case "$REPLY" in
-                    Y*|y*) echo "Al-Amin Zone" >> ${CHROOT}/${wimg}.txt;prepare_fs;;
-                    N*|y*) printf "\n${blue}"
-                           echo "       [1] ${CHROOT} 'Full'"
-                           echo "       [2] ${CHROOT} 'Minimal'"
-                           echo "       [3] ${CHROOT} 'Nano'"
-                           read -p "[?] What was the last image installation?" REPLY
-                           printf "${reset}"
-                           case "$REPLY" in
-                               1) echo "Al-Amin Zone" >> ${CHROOT}/full.txt;prepare_fs;;
-                               2) echo "Al-Amin Zone" >> ${CHROOT}/minimal.txt;prepare_fs;;
-                               3) echo "Al-Amin Zone" >> ${CHROOT}/nano.txt;prepare_fs;;
-                               *) last_time_vrsn;;
-                           esac;;
-                esac
+            create_last_time_vrsn() {
+            confirmation_create_last_time_vrsn() {
+            read -p "[?] What was the last image installation? " REPLY
+            case "$REPLY" in
+                1) echo "Al-Amin Zone" >> ${CHROOT}/full.txt;prepare_fs;;
+                2) echo "Al-Amin Zone" >> ${CHROOT}/minimal.txt;prepare_fs;;
+                3) echo "Al-Amin Zone" >> ${CHROOT}/nano.txt;prepare_fs;;
+                *) confirmation_create_last_time_vrsn;;
+            esac
+            }
+            printf "\n${blue}"
+            echo "       [1] ${CHROOT} 'Full'"
+            echo "       [2] ${CHROOT} 'Minimal'"
+            echo "       [3] ${CHROOT} 'Nano'"
+            confirmation_create_last_time_vrsn
+            printf "${reset}"
+            }
+            printf "\n${light_cyan}"
+            read -p "Did you install the ${CHROOT} ${wimg} image last time? [y/N] " REPLY
+            if [ -z $REPLY ]; then
+                REPLY="N"
             fi
+            case "$REPLY" in
+                Y*|y*) printf "\n${green}" 
+                      read -p "Yes I installed ${CHROOT} ${wimg} version last time. [y/N] " REPLY
+                       if [ -z $REPLY ]; then
+                           REPLY="N"
+                       fi
+                       case "$REPLY" in
+                           Y*|y*) echo "Al-Amin Zone" >> ${CHROOT}/${wimg}.txt;prepare_fs;;
+                           N*|n*) create_last_time_vrsn;;
+                       esac;;
+                N*|n*) create_last_time_vrsn;;
+                *) last_time_vrsn;;
+            esac
             }
             if [ -f ${CHROOT}/full.txt ]; then
                 VRSN="full";finding_vrsn
@@ -494,14 +516,14 @@ function check_update() {
             return 0
     	  }
     	  while read line;do case $line in
-             M030*) KEEP_UPDATED=1 ;;
+             M029*) KEEP_UPDATED=1 ;;
              *) KEEP_UPDATE=1 ;;
     	  esac
     	  done < $PREFIX/bin/modified
           update
         fi
     else
-        printf "${red}";read -p "[×] Internet connection is not ok. [Enter]"; printf "${reset}\n"
+        printf "${red}";read -p "[x] Internet connection is not ok. [Enter]"; printf "${reset}\n"
     fi
     if [ ! -z $KEEP_UPDATED ]; then
          printf "${red}[${green}✔${red}] ${yellow}NetHunter installer up to date${reset}";read -p " Press 〈ENTER〉 "
@@ -1238,6 +1260,132 @@ EOF
     fi
 }
 
+function minimal_nano_gui() {
+    printf "${blue}\n[*] Checking GUI package dependencies...${reset}\n"
+    unset dbus-x11 xfce4 xfce4-terminal tigervnc-standalone-server
+    if [ ! -f ${CHROOT}/usr/bin/dbus-launch ]; then
+        DBUS_X11="dbus-x11"
+    elif [ ! -f ${CHROOT}/usr/bin/startxfce4 ]; then
+        XFCE4="xfce4";XFCE_TERMINAL="xfce4-terminal"
+    elif [ ! -f ${CHROOT}/usr/bin/tigervncserver ]; then
+        TIGER_VNC="tigervnc-standalone-server"
+    fi
+    printf "\n${blue}[*] Creating network server…${reset}\n"
+    cat > ${CHROOT}/etc/resolv.conf <<- EOF
+# This is /run/systemd/resolve/stub-resolv.conf managed by man:systemd-resolved(8).
+# Do not edit.
+#
+# This file might be symlinked as /etc/resolv.conf. If you're looking at
+# /etc/resolv.conf and seeing this text, you have followed the symlink.
+#
+# This is a dynamic resolv.conf file for connecting local clients to the
+# internal DNS stub resolver of systemd-resolved. This file lists all
+# configured search domains.
+#
+# Run "resolvectl status" to see details about the uplink DNS servers
+# currently in use.
+#
+# Third party programs should typically not access this file directly, but only
+# through the symlink at /etc/resolv.conf. To manage man:resolv.conf(5) in a
+# different way, replace this symlink by a static file or a different symlink.
+#
+# See man:systemd-resolved.service(8) for details about the supported modes of
+# operation for /etc/resolv.conf.
+
+# Generated by NetworkManager
+nameserver 8.8.8.8
+nameserver 8.8.4.4
+options edns0 trust-ad
+search whitedome.com.au
+EOF
+    nh_terminal() {
+    if ask "Do you want install the apt update?" "N"; then
+        clear
+        echo 'apt updating...........……'
+        $NH_LAUNCHER apt update -y || :
+    fi
+    printf "\n${yellow}[+] sudo default kali password is 'kali' ..\n"
+    printf "    ${blue}Example:-\n    ${reset}[sudo] password for kali: ${green}kali\n${light_cyan}[#] Complete packages may take more than half an hour to install.${reset}\n"
+    if ask "Continuing any way..?" "Y"; then
+        for g in $TIGER_VNC $XFCE_TERMINAL $DBUS_X11 $XFCE4; do
+            if [ ! -z $g ]; then
+                printf "${green}\n";read -p "Installing ${g}... [Enter] "; printf "${reset}\n"
+                $NH_LAUNCHER sudo apt reinstall -y $g || {
+                    printf "${red}ERROR: Failed to install GUI packages.\n Exiting.\n${reset}"
+                }
+            fi
+        done
+        printf "\n${blue}[*] Configuring VNC startup……${reset}\n"
+        VNC_LAUNCHER=${CHROOT}/home/kali/.vnc/xstartup
+        VNC_SHORTCUT=${CHROOT}/root/.vnc/xstartup
+        cat > $VNC_LAUNCHER <<- EOF
+#!/bin/sh
+
+#############################
+##          All            ##
+unset SESSION_MANAGER
+unset DBUS_SESSION_BUS_ADDRESS
+export SHELL=/bin/bash
+
+#############################
+##          Gnome          ##
+[ -x /etc/vnc/xstartup ] && exec /etc/vnc/xstartup
+[ -r /root/.Xresources ] && xrdb /root/.Xresources
+vncconfig -iconic &
+dbus-launch --exit-with-session gnome-session &
+
+
+############################
+##           LXQT         ##
+####exec openbox-session
+#exec startlxqt
+
+
+############################
+##          KDE           ##
+#exec /usr/bin/startkde
+
+
+############################
+##          XFCE          ##
+startxfce4
+EOF
+        chmod 700 $VNC_LAUNCHER
+        if [ -L ${VNC_SHORTCUT} ]; then
+        rm -f ${VNC_SHORTCUT}
+        fi
+        if [ ! -f ${VNC_SHORTCUT} ]; then
+            ln -s ${VNC_LAUNCHER} ${VNC_SHORTCUT} >/dev/null
+        fi
+        if ask "Do you want install the apt-get update?" "N"; then
+            clear
+             echo 'Installing apt-get update'
+             $NH_LAUNCHER sudo apt-get update -y
+        fi
+        if ask "Do you want install the Parole Media Player?" "N"; then
+             clear
+             echo 'Installing Media Player'
+             $NH_LAUNCHER sudo apt install parole
+        fi
+        if ask "Do you want install the Firefox ESR?" "N";then
+             clear
+             echo 'Installing Firefox browser'
+             $NH_LAUNCHER sudo apt install firefox-esr
+        fi
+    fi
+    }
+    checkup_internet
+    if [ -z $INTERNET ]; then
+        nh_terminal
+    else
+        printf "${red}[x] Internet connection is not ok....…"
+        if ask "Is your device connected to the internet..?…     " "N"; then
+            nh_terminal
+            return
+        fi
+    fi
+}
+
 function alhamdulillah() {
     printf "${green}##               Alhamdulillah                 ##\n"
     printf "${blue}*************************************************\n"
@@ -1316,6 +1464,11 @@ tz_command
 network_setup
 fonts_setup
 link
+if [ -f ${CHROOT}/minimal.txt ]; then
+      minimal_nano_gui
+elif [ -f ${CHROOT}/nano.txt ]; then
+      minimal_nano_gui
+fi
 alhamdulillah
 
 print_banner
@@ -1332,7 +1485,6 @@ printf "${green}[+] nethunter -r          # To run NetHunter as root${reset}\n"
 #printf "${green}[+] nethunter kex stop    # To stop NetHunter GUI root session${reset}\n"
 #printf "${green}[+] nethunter -r kex kill # To stop all NetHunter GUI sessions${reset}\n"
 #printf "${green}[+] nethunter -r kex <command> # Run command in NetHunter env as root${reset}\n"
-printf "${green}[+] nh                    # Shortcut for nethunter${reset}\n"
-printf "${green}[+] nh tz                 #Time Zone Setup${reset}\n\n"
+printf "${green}[+] nh                    # Shortcut for nethunter${reset}\n\n"
 play-audio ${VOICE}/${VOICE7} &> /dev/null ||:
 play-audio ${VOICE}/${VOICE8} &> /dev/null ||:
