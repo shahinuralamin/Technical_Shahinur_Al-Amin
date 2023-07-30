@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash -e
 
 VERSION=2020011601
-MODIFIED=031_30jul2023
+MODIFIED=032_30jul2023
 BASE_URL=https://kali.download/nethunter-images/current/rootfs
 VOICE_URL=https://github.com/shahinuralamin/Technical_Shahinur_Al-Amin/releases/download/install-nethunter-modified/kali_voice.tar.xz
 device_arch=$(getprop ro.product.cpu.abi)
@@ -461,7 +461,7 @@ function check_dependencies() {
         printf "${blue}[*] Configuring termux setup storage...${reset}\n"
         setup_storage
     fi
-    for i in tar wget axel proot pulseaudio play-audio; do
+    for i in tar wget proot pulseaudio play-audio; do
         if [ -e $PREFIX/bin/$i ]; then
             echo "  $i is OK"
         else
@@ -472,6 +472,14 @@ function check_dependencies() {
             }
         fi
     done
+    if ask "Do you want to copy this NetHunter installer to sdcard?" "N"; then
+        if [ -f /sdcard/install-nethunter-modified ]; then
+            rm -f /sdcard/install-nethunter-modified
+            cp install-nethunter-modified /sdcard/install-nethunter-modified ||:
+        else
+            cp install-nethunter-modified /sdcard/install-nethunter-modified ||:
+        fi
+    fi
     printf "\033[1;35mapt upgrade starting...${reset}\n"
     apt upgrade -y || {
         printf "\n${red}ERROR: Failed to upgrade packages.\n_______Please check the internet connection.\n\n"
@@ -511,12 +519,12 @@ function check_update() {
         printf "${green}[√] Internet connection is ok.${reset}\n"
         if ask "Do you want to check for update?" "N"; then
           printf "${yellow}Checking update...${reset}\n\n"
-          axel --output=$PREFIX/bin/modified https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/modified &> /dev/null || {
+          wget --tries=20 https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/modified -O $PREFIX/bin/modified &> /dev/null || {
             printf "${red}ERROR:\n Internet connection failed${reset}\n"
             return 0
     	  }
     	  while read line;do case $line in
-             M031*) KEEP_UPDATED=1 ;;
+             M032) KEEP_UPDATED=1 ;;
              *) KEEP_UPDATE=1 ;;
     	  esac
     	  done < $PREFIX/bin/modified
@@ -540,7 +548,7 @@ function update() {
         fi
         case $REPLY in
           Y*|y*) printf "${yellow}[*] Updating NetHunter installer...${reset}\n\n"
-               axel --output=$PREFIX/bin/install-nethunter-modified https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/install-nethunter-modified 2> /dev/null || {
+               wget --tries=20 https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/install-nethunter-modified -O $PREFIX/bin/install-nethunter-modified 2> /dev/null || {
                    printf "${red}ERROR:\n Failed to Checking install-nethunter-modified update.\n ${yellow}Continuing Anyway...\n${reset}"
                    return 0
                }
@@ -841,7 +849,7 @@ function get_voice() {
     fi
     if [ ! -z $VOICE_FILE ]; then
         printf "${blue}[*] Downloading voice...\n"
-        axel ${EXTRA_ARGS} --alternate --output=${VOICE_NAME} "$VOICE_URL" &> /dev/null || {
+        wget --tries=20 ${EXTRA_ARGS} --continue "$VOICE_URL" -O ${VOICE_NAME} &> /dev/null || {
           printf "${red}ERROR:\n Internet connection failed${reset}\n"
           return 0
         }
@@ -930,8 +938,8 @@ pulseaudio --start --load="module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth
 	apt upgrade -y
 	echo "Again installing packages"
 	apt reinstall pulseaudio -y &> /dev/null ||:
-	apt install axel -y &> /dev/null
-	axel --output=\$HOME/pulseaudioinstaller https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/install-pulseaudio-termux &> /dev/null || {
+	apt install wget -y &> /dev/null
+	wget --tries=20 https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/install-pulseaudio-termux -O \$HOME/pulseaudioinstaller &> /dev/null || {
 	    printf "\n\033[1;31mInternet connection error\033[0m\n"
             pulseaudio --start --load="module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1" --exit-idle-time=-1 &> /dev/null || {
                 PULSE=1
@@ -1261,12 +1269,25 @@ EOF
 }
 
 function minimal_nano_gui() {
-    printf "${blue}\n[*] Checking GUI package dependencies...${reset}\n"
+    clear
+    printf "${blue}\n[*] Checking GUI package dependencies...\n"
     unset dbus-x11 xfce4 xfce4-terminal tigervnc-standalone-server
     if [ ! -f ${CHROOT}/usr/bin/dbus-launch ]; then
         DBUS_X11="dbus-x11"
     elif [ ! -f ${CHROOT}/usr/bin/startxfce4 ]; then
-        XFCE4="xfce4";XFCE_TERMINAL="xfce4-terminal"
+        echo "    [1] Kali desktop theme 'higher size' [h]"
+        echo "    [2] Kali desktop theme 'lower size'  [l]"
+        kali_theme() {
+        printf "${light_cyan}[=] Enter the Xfce-theme you want to install:"
+        printf "${blue}";read -p "$1 " REPLY
+        printf "${reset}"
+        case "$REPLY" in
+            1|h) XFCE4="kali-desktop-xfce";;
+            2|l) XFCE4="xfce4";XFCE_TERMINAL="xfce4-terminal";;
+            *) kali_theme;;
+        esac
+        }
+        kali_theme
     elif [ ! -f ${CHROOT}/usr/bin/tigervncserver ]; then
         TIGER_VNC="tigervnc-standalone-server"
     fi
@@ -1304,14 +1325,16 @@ EOF
         echo 'apt updating...........……'
         $NH_LAUNCHER apt update -y || :
     fi
+    clear
     printf "\n${yellow}[+] sudo default kali password is 'kali' ..\n"
     printf "    ${blue}Example:-\n    ${reset}[sudo] password for kali: ${green}kali\n${light_cyan}[#] Complete packages may take more than half an hour to install.${reset}\n"
-    if ask "Continuing any way..?" "Y"; then
-        for g in $TIGER_VNC $XFCE_TERMINAL $DBUS_X11 $XFCE4; do
+    if ask "Do you want installing any way?" "Y"; then
+        for g in $XFCE4 $XFCE_TERMINAL $DBUS_X11 $TIGER_VNC; do
             if [ ! -z $g ]; then
                 printf "${green}\n";read -p "Installing ${g}... [Enter] "; printf "${reset}\n"
                 $NH_LAUNCHER sudo apt reinstall -y $g || {
                     printf "${red}ERROR: Failed to install GUI packages.\n Exiting.\n${reset}"
+                    exit
                 }
             fi
         done
