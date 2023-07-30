@@ -472,7 +472,7 @@ function check_dependencies() {
             }
         fi
     done
-    if ask "Do you want to copy this NetHunter installer to sdcard?" "N"; then
+    if ask "Do you want to backup this NetHunter installer to sdcard?" "N"; then
         if [ -f /sdcard/install-nethunter-modified ]; then
             rm -f /sdcard/install-nethunter-modified
             cp install-nethunter-modified /sdcard/install-nethunter-modified ||:
