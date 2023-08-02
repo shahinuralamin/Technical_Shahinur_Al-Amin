@@ -472,14 +472,6 @@ function check_dependencies() {
             }
         fi
     done
-    if ask "Do you want to backup this NetHunter installer to sdcard?" "N"; then
-        if [ -f /sdcard/install-nethunter-modified ]; then
-            rm -f /sdcard/install-nethunter-modified
-            cp install-nethunter-modified /sdcard/install-nethunter-modified ||:
-        else
-            cp install-nethunter-modified /sdcard/install-nethunter-modified ||:
-        fi
-    fi
     printf "\033[1;35mapt upgrade starting...${reset}\n"
     apt upgrade -y || {
         printf "\n${red}ERROR: Failed to upgrade packages.\n_______Please check the internet connection.\n\n"
@@ -1033,11 +1025,9 @@ function create_kex_launcher() {
 function get_gnu() {
    case \$(uname -m) in
         arm64-v8a|arm64-v8|aarch64|arm64)
-            GNU=/usr/lib/aarch64-linux-gnu/libgcc_s.so.1
-            ;;
+            GNU=/usr/lib/aarch64-linux-gnu/libgcc_s.so.1;;
         armeabi|armv8l|armeabi-v7a|armv7l)
-            GNU=/usr/lib/arm-linux-gnueabihf/libgcc_s.so.1
-            ;;
+            GNU=/usr/lib/arm-linux-gnueabihf/libgcc_s.so.1;;
    esac
 }
 
@@ -1274,7 +1264,8 @@ function minimal_nano_gui() {
     unset dbus-x11 xfce4 xfce4-terminal tigervnc-standalone-server
     if [ ! -f ${CHROOT}/usr/bin/dbus-launch ]; then
         DBUS_X11="dbus-x11"
-    elif [ ! -f ${CHROOT}/usr/bin/startxfce4 ]; then
+    fi
+    if [ ! -f ${CHROOT}/usr/bin/startxfce4 ]; then
         echo "    [1] Kali desktop theme 'higher size' [h]"
         echo "    [2] Kali desktop theme 'lower size'  [l]"
         kali_theme() {
@@ -1288,7 +1279,8 @@ function minimal_nano_gui() {
         esac
         }
         kali_theme
-    elif [ ! -f ${CHROOT}/usr/bin/tigervncserver ]; then
+    fi
+    if [ ! -f ${CHROOT}/usr/bin/tigervncserver ]; then
         TIGER_VNC="tigervnc-standalone-server"
     fi
     printf "\n${blue}[*] Creating network server…${reset}\n"
@@ -1491,6 +1483,14 @@ if [ -f ${CHROOT}/minimal.txt ]; then
       minimal_nano_gui
 elif [ -f ${CHROOT}/nano.txt ]; then
       minimal_nano_gui
+fi
+if ask "Do you want to backup this NetHunter installer to SDcard?" "N"; then
+    if [ -f /sdcard/install-nethunter-modified ]; then
+        rm -f /sdcard/install-nethunter-modified
+        cp install-nethunter-modified /sdcard/install-nethunter-modified ||:
+    else
+        cp install-nethunter-modified /sdcard/install-nethunter-modified ||:
+    fi
 fi
 alhamdulillah
 
