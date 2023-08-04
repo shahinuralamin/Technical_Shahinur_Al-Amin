@@ -384,7 +384,7 @@ function prepare_fs() {
              }
 
             printf "\n${light_cyan}"
-            read -p "Did you install the ${CHROOT} ${wimg} image last time? [y/N] " REPLY
+            read -p "[?] Did you install '${CHROOT} ${wimg}' image last time? [y/N] " REPLY
             if [ -z $REPLY ]; then
                 REPLY="N"
             fi
