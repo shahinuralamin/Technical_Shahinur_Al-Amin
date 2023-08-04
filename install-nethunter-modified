@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash -e
 
 VERSION=2020011601
-MODIFIED=033_02Aug2023
+MODIFIED="034 04-Aug-2023"
 BASE_URL=https://kali.download/nethunter-images/current/rootfs
 VOICE_URL=https://github.com/shahinuralamin/Technical_Shahinur_Al-Amin/releases/download/install-nethunter-modified/kali_voice.tar.xz
 device_arch=$(getprop ro.product.cpu.abi)
@@ -272,122 +272,125 @@ function prepare_fs() {
         fi
         if [ -f ${CHROOT}/${wimg}.txt ];then
             if ask "Are you sure it's ${CHROOT}-${wimg} existing rootfs  directory?" "Y"; then
-            printf "\n${yellow}[*] Existing rootfs  directory found.${reset}\n"
-            if ask "Do you want backup or delete and create a new one?" "N"; then
-                printf "${blue}"
-                echo "       [1] NetHunter ${CHROOT}-${wimg} Backup"
-                echo "       [2] NetHunter ${CHROOT}-${wimg} Delete"
-                echo "       [3] Return"
-                buckup_confirmation() {
-                read -p "[?] Enter your decision you want to backup or delete? " REPLY
-                printf "${reset}"
-                case "$REPLY" in
-                    1) if [ -d ${CHROOT}-${wimg} ]; then
-                           printf "\n${yellow}[*] Found your previous ${CHROOT}-${wimg} backup directory.${reset}\n"
-                           if ask "Do you want delete your previous ${CHROOT}-${wimg} backup directory?" "N"; then
-                               printf "${red}[x] Deleting your previous ${CHROOT}-${wimg} backup directory...\n"
-                               rm -rf ${CHROOT}-${wimg};mv ${CHROOT} ${CHROOT}-${wimg};echo "You have successfully backed up ${CHROOT}-${wimg} newly.";prepare_fs
-                           else
-                               printf "\n${red}You have unsuccessfully backed up ${CHROOT}-${wimg}.${reset}\n"
-                               continuing_backup_confirmation() {
-                               read -p "[?] Continuing any way?. [y/N] " REPLY
-                               if [ -z $REPLY ]; then
-                                   REPLY="N"
+                printf "\n${yellow}[*] Existing rootfs  directory found.${reset}\n"
+                if ask "Do you want backup or delete and create a new one?" "N"; then
+                    printf "${blue}"
+                    echo "       [1] NetHunter ${CHROOT}-${wimg} Backup"
+                    echo "       [2] NetHunter ${CHROOT}-${wimg} Delete"
+                    echo "       [3] Return"
+                    buckup_confirmation() {
+                    read -p "[?] Enter your decision you want to backup or delete? " REPLY
+                    printf "${reset}"
+                    case "$REPLY" in
+                        1) if [ -d ${CHROOT}-${wimg} ]; then
+                               printf "\n${yellow}[*] Found your previous ${CHROOT}-${wimg} backup directory.${reset}\n"
+                               if ask "Do you want delete your previous ${CHROOT}-${wimg} backup directory?" "N"; then
+                                   printf "${red}[x] Deleting your previous ${CHROOT}-${wimg} backup directory...\n"
+                                   rm -rf ${CHROOT}-${wimg};mv ${CHROOT} ${CHROOT}-${wimg};echo "You have successfully backed up ${CHROOT}-${wimg} newly.";prepare_fs
+                               else
+                                   printf "\n${red}You have unsuccessfully backed up ${CHROOT}-${wimg}.${reset}\n"
+                                   continuing_backup_confirmation() {
+                                   read -p "[?] Continuing any way?. [y/N] " REPLY
+                                   if [ -z $REPLY ]; then
+                                       REPLY="N"
+                                   fi
+                                   case "$REPLY" in
+                                       Y*|y*) return;;
+                                       N*|n*) prepare_fs;;
+                                           *) continuing_backup_confirmation
+                                   esac
+                                   }
+                                   continuing_backup_confirmation
                                fi
-                               case "$REPLY" in
-                                   Y*|y*) return;;
-                                   N*|n*) prepare_fs;;
-                                   *) continuing_backup_confirmation
-                               esac
-                               }
-                           fi
-                       else
-                           mv ${CHROOT} ${CHROOT}-${wimg};printf "\n${green}You have successfully backed up ${CHROOT}-${wimg}.${reset}\n";prepare_fs
-                       fi;;
-                    2) printf "\n${red}Deleting ${CHROOT} directory...${reset}\n";rm -rf ${CHROOT};echo "You have successfully deleted ${CHROOT}";prepare_fs;;
-                    3) prepare_fs;;
-                    *) buckup_confirmation;;
-                esac
-                }
-                buckup_confirmation
-            fi
+                           else
+                               mv ${CHROOT} ${CHROOT}-${wimg};printf "\n${green}You have successfully backed up ${CHROOT}-${wimg}.${reset}\n";prepare_fs
+                           fi;;
+                        2) printf "\n${red}Deleting ${CHROOT} directory...${reset}\n";rm -rf ${CHROOT};echo "You have successfully deleted ${CHROOT}";prepare_fs;;
+                        3) prepare_fs;;
+                        *) buckup_confirmation;;
+                    esac
+                    }
+                    buckup_confirmation
+                fi
             else
-                rm -f ${CHROOT}/${wimg}.txt;prepare_fs
+                    rm -f ${CHROOT}/${wimg}.txt;prepare_fs
             fi
         else
             finding_vrsn() {
             if ask "Are you sure it's ${CHROOT}-${VRSN} existing rootfs  directory?" "Y"; then
-            if [ -f ${CHROOT}/${VRSN}.txt ];then
-             printf "\n${yellow}[*] Existing rootfs ${CHROOT}-${VRSN} directory found.${reset}\n"
-             if ask "Do you want backup or delete and create a new one?" "N"; then
-                printf "${blue}"
-                echo "       [1] NetHunter ${CHROOT}-${VRSN} Backup"
-                echo "       [2] NetHunter ${CHROOT}-${VRSN} Delete"
-                echo "       [3] Return"
-                buckup_confirmation() {
-                read -p "Enter your decision you want to backup or delete " REPLY
-                printf "${reset}"
-                case "$REPLY" in
-                    1) if [ -d ${CHROOT}-${VRSN} ]; then
-                           printf "\n${yellow}[*] Found your previous ${CHROOT}-${VRSN} backup directory.${reset}\n"
-                           if ask "Do you want delete your previous ${CHROOT}-${VRSN} backup directory?" "N"; then
-                               printf "${red}[x] Deleting your previous ${CHROOT}-${VRSN} backup directory...\n"
-                               rm -rf ${CHROOT}-${VRSN};mv ${CHROOT} ${CHROOT}-${VRSN};echo "You have successfully backed up ${CHROOT}-${VRSN} newly.";prepare_fs
-                           else
-                               printf "\n${red}[x] You have unsuccessfully backed up ${CHROOT}-${VRSN}.\n"
-                               continuing_backup_confirmation() {
-                               read -p "[?] Continuing any way?. [y/N] " REPLY
-                               if [ -z $REPLY ]; then
-                                   REPLY="N"
+               if [ -f ${CHROOT}/${VRSN}.txt ];then
+                 printf "\n${yellow}[*] Existing rootfs ${CHROOT}-${VRSN} directory found.${reset}\n"
+                 if ask "Do you want backup or delete and create a new one?" "N"; then
+                    printf "${blue}"
+                    echo "       [1] NetHunter ${CHROOT}-${VRSN} Backup"
+                    echo "       [2] NetHunter ${CHROOT}-${VRSN} Delete"
+                    echo "       [3] Return"
+                    buckup_confirmation() {
+                    read -p "Enter your decision you want to backup or delete " REPLY
+                    printf "${reset}"
+                    case "$REPLY" in
+                        1) if [ -d ${CHROOT}-${VRSN} ]; then
+                                printf "\n${yellow}[*] Found your previous ${CHROOT}-${VRSN} backup directory.${reset}\n"
+                               if ask "Do you want delete your previous ${CHROOT}-${VRSN} backup directory?" "N"; then
+                                   printf "${red}[x] Deleting your previous ${CHROOT}-${VRSN} backup directory...\n"
+                                   rm -rf ${CHROOT}-${VRSN};mv ${CHROOT} ${CHROOT}-${VRSN};echo "You have successfully backed up ${CHROOT}-${VRSN} newly.";prepare_fs
+                               else
+                                   printf "\n${red}[x] You have unsuccessfully backed up ${CHROOT}-${VRSN}.\n"
+                                   continuing_backup_confirmation() {
+                                   read -p "[?] Continuing any way?. [y/N] " REPLY
+                                   if [ -z $REPLY ]; then
+                                       REPLY="N"
+                                   fi
+                                   case "$REPLY" in
+                                       Y*|y*) return;;
+                                       N*|n*) finding_vrsn;;
+                                       *) continuing_backup_confirmation
+                                   esac
+                                   }
                                fi
-                               case "$REPLY" in
-                                   Y*|y*) return;;
-                                   N*|n*) finding_vrsn;;
-                                   *) continuing_backup_confirmation
-                               esac
-                               }
-                           fi
-                       else
-                           mv ${CHROOT} ${CHROOT}-${VRSN};echo "You have successfully backed up ${CHROOT}-${VRSN}.";prepare_fs
-                       fi;;
-                    2) printf "\n${red}Deleting ${CHROOT} directory...${reset}\n";rm -rf ${CHROOT};echo "You have successfully deleted ${CHROOT}";prepare_fs;;
-                    3) prepare_fs;;
-                    *) buckup_confirmation;;
-                esac
-                }
-                buckup_confirmation
-             fi
-            fi
+                           else
+                               mv ${CHROOT} ${CHROOT}-${VRSN};echo "You have successfully backed up ${CHROOT}-${VRSN}.";prepare_fs
+                           fi;;
+                        2) printf "\n${red}Deleting ${CHROOT} directory...${reset}\n";rm -rf ${CHROOT};echo "You have successfully deleted ${CHROOT}";prepare_fs;;
+                        3) prepare_fs;;
+                        *) buckup_confirmation;;
+                    esac
+                    }
+                    buckup_confirmation
+                 fi
+               fi
             else
                 rm -f ${CHROOT}/${wimg}.txt;prepare_fs
             fi
             }
             last_time_vrsn() {
-            create_last_time_vrsn() {
-            confirmation_create_last_time_vrsn() {
-            read -p "[?] What was the last image installation? " REPLY
-            case "$REPLY" in
-                1) echo "Al-Amin Zone" >> ${CHROOT}/full.txt;prepare_fs;;
-                2) echo "Al-Amin Zone" >> ${CHROOT}/minimal.txt;prepare_fs;;
-                3) echo "Al-Amin Zone" >> ${CHROOT}/nano.txt;prepare_fs;;
-                *) confirmation_create_last_time_vrsn;;
-            esac
-            }
-            printf "\n${blue}"
-            echo "       [1] ${CHROOT} 'Full'"
-            echo "       [2] ${CHROOT} 'Minimal'"
-            echo "       [3] ${CHROOT} 'Nano'"
-            confirmation_create_last_time_vrsn
-            printf "${reset}"
-            }
+             create_last_time_vrsn() {
+              confirmation_create_last_time_vrsn() {
+              read -p "[?] What was the last image installation? " REPLY
+              case "$REPLY" in
+                  1) echo "Al-Amin Zone" >> ${CHROOT}/full.txt;prepare_fs;;
+                  2) echo "Al-Amin Zone" >> ${CHROOT}/minimal.txt;prepare_fs;;
+                  3) echo "Al-Amin Zone" >> ${CHROOT}/nano.txt;prepare_fs;;
+                  *) confirmation_create_last_time_vrsn;;
+              esac
+              }
+
+             printf "\n${blue}"
+             echo "       [1] ${CHROOT} 'Full'"
+             echo "       [2] ${CHROOT} 'Minimal'"
+             echo "       [3] ${CHROOT} 'Nano'"
+             confirmation_create_last_time_vrsn
+             printf "${reset}"
+             }
+
             printf "\n${light_cyan}"
             read -p "Did you install the ${CHROOT} ${wimg} image last time? [y/N] " REPLY
             if [ -z $REPLY ]; then
                 REPLY="N"
             fi
             case "$REPLY" in
-                Y*|y*) printf "\n${green}" 
-                      read -p "Yes I installed ${CHROOT} ${wimg} version last time. [y/N] " REPLY
+                Y*|y*) printf "\n${green}"
+                       read -p "Yes I installed ${CHROOT} ${wimg} version last time. [y/N] " REPLY
                        if [ -z $REPLY ]; then
                            REPLY="N"
                        fi
@@ -396,7 +399,7 @@ function prepare_fs() {
                            N*|n*) create_last_time_vrsn;;
                        esac;;
                 N*|n*) create_last_time_vrsn;;
-                *) last_time_vrsn;;
+                    *) last_time_vrsn;;
             esac
             }
             if [ -f ${CHROOT}/full.txt ]; then
@@ -502,6 +505,8 @@ function check_dependencies() {
 }
 
 function check_update() {
+    printf "\n${blue}[*] Checking modified version & date...${reset}\n"
+    echo "    $MODIFIED"
     if [ -f $PREFIX/bin/modified ]; then
         rm -f $PREFIX/bin/modified
     fi
@@ -516,7 +521,7 @@ function check_update() {
             return 0
     	  }
     	  while read line;do case $line in
-             M033) KEEP_UPDATED=1 ;;
+             M034) KEEP_UPDATED=1 ;;
              *) KEEP_UPDATE=1 ;;
     	  esac
     	  done < $PREFIX/bin/modified
@@ -570,15 +575,13 @@ function update() {
 }
 
 function sound_setup() {
-    unset KEEP_TIME
-    if [ -f ${CHROOT}/usr/bin/tz ]; then
+    if [ -f $PREFIX/bin/sound ]; then
         printf "${yellow}[!] Using Pulseaudio...${reset}\n"
         play-audio ${VOICE}/${VOICE10} &> /dev/null ||:
-        KEEP_TIME=1
-    fi
-    if [ -z $KEEP_TIME ]; then
-    printf "\033[1;35m[*] Configuring Pulseaudio...${reset}\n"
-    play-audio ${VOICE}/${VOICE11} &> /dev/null ||:
+    else
+        echo 'pulseaudio --start --load="module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1" --exit-idle-time=-1' >> $PREFIX/bin/sound
+        printf "\033[1;35m[*] Configuring Pulseaudio...${reset}\n"
+        play-audio ${VOICE}/${VOICE11} &> /dev/null ||:
         DEFAULT_PA=$PREFIX/etc/pulse/default.pa
         cat > $DEFAULT_PA <<- EOF
 #!/data/data/com.termux/files/usr/bin/pulseaudio -nF
@@ -703,10 +706,7 @@ load-module module-filter-apply
 load-module module-sles-sink
 #load-module module-aaudio-sink
 EOF
-    fi
-    if [ -z $KEEP_TIME ]; then
-        DAEMON_CONF=$PREFIX/etc/pulse/daemon.conf
-        cat > $DAEMON_CONF <<- EOF
+    cat > $PREFIX/etc/pulse/daemon.conf <<- EOF
 # This file is part of PulseAudio.
 #
 # PulseAudio is free software; you can redistribute it and/or modify
@@ -799,6 +799,13 @@ EOF
 ; deferred-volume-safety-margin-usec = 8000
 ; deferred-volume-extra-delay-usec = 0
 EOF
+        chmod 700 $PREFIX/bin/sound
+        if [ -f ./sound ]; then
+            rm -f ./sound
+        fi
+        if [ ! -f ./sound ]; then
+            ln -s $PREFIX/bin/sound ./sound >/dev/null
+        fi
     fi
 }
 
@@ -1104,14 +1111,12 @@ EOF
 }
 
 function time_zone() {
-    if [ -z $KEEP_TIME ]; then
-    TIME_ZONE=${CHROOT}/usr/bin/tz
-    cat > $TIME_ZONE <<- EOF
+    if [ ! -f ${CHROOT}/usr/bin/tz ]; then
+        cat > ${CHROOT}/usr/bin/tz <<- EOF
 #!/bin/bash
 sudo dpkg-reconfigure tzdata
 EOF
-
-    chmod 700 $TIME_ZONE
+        chmod 700 ${CHROOT}/usr/bin/tz
     fi
 }
 
@@ -1141,23 +1146,14 @@ function fix_uid() {
 }
 
 function create_kali_setup_folder() {
-    unset KEEP_KALI
-    if [ -d /sdcard/kali_setup ]; then
-        KEEP_KALI=1
-    fi
-    if [ -z $KEEP_KALI ]; then
+    if [ ! -d /sdcard/kali_setup ]; then
         mkdir /sdcard/kali_setup
     fi
 }
 
 function network_setup() {
-    unset KEEP_NETWORK
-    if [ -f /sdcard/kali_setup/Firefox_Network_Setup.txt ]; then
-      KEEP_NETWORK=1
-    fi
-    if [ -z $KEEP_NETWORK ]; then
-      NETWORK_LAUNCHER=/sdcard/kali_setup/Firefox_Network_Setup.txt
-      cat > $NETWORK_LAUNCHER <<- EOF
+    if [ ! -f /sdcard/kali_setup/Firefox_Network_Setup.txt ]; then
+        cat > /sdcard/kali_setup/Firefox_Network_Setup.txt <<- EOF
         Al-Amin Zone
 
 Network Setup Video =
@@ -1185,13 +1181,8 @@ EOF
 }
 
 function fonts_setup() {
-    unset KEEP_FONTS
-    if [ -f /sdcard/kali_setup/Fonts_Setup.txt ]; then
-        KEEP_FONTS=1
-    fi
-    if [ -iz $KEEP_FONTS ]; then
-        FONTS=/sdcard/kali_setup/Fonts_Setup.txt
-        cat > $FONTS <<- EOF
+    if [ ! -f /sdcard/kali_setup/Fonts_Setup.txt ]; then
+        cat > /sdcard/kali_setup/Fonts_Setup.txt <<- EOF
           Al-Amin Zone
 
 Fonts Setup Video:
@@ -1204,13 +1195,8 @@ EOF
 }
 
 function tz_command() {
-    unset KEEP_TZ
-    if [ -f /sdcard/kali_setup/Time_Zone_Comman.txt ]; then
-        KEEP_TZ=1
-    fi
-    if [ -z $KEEP_TZ ]; then
-        TZ=/sdcard/kali_setup/Time_Zone_Comman.txt
-        cat > $TZ <<- EOF
+    if [ ! -f /sdcard/kali_setup/Time_Zone_Comman.txt ]; then
+        cat > /sdcard/kali_setup/Time_Zone_Comman.txt <<- EOF
           Al-Amin Zone
 
 Command on Terminal :
@@ -1232,20 +1218,11 @@ EOF
 }
 
 function link() {
-    unset KEEP_DESKTOP
-    if [ -d $CHROOT/home/kali/Desktop ]; then
-        KEEP_DESKTOP=1
-    fi
-    if [ -z $KEEP_DESKTOP ]; then
+    if [ ! -d $CHROOT/home/kali/Desktop ]; then
         mkdir $CHROOT/home/kali/Desktop
     fi
-    unset KEEP_LINK
-    if [ -f $CHROOT/home/kali/Desktop/Al_Amin_Zone.desktop ]; then
-        KEEP_LINK=1
-    fi
-    if [ -z $KEEP_LINK ]; then
-        ALAMIN=$CHROOT/home/kali/Desktop/Al_Amin_Zone.desktop
-        cat > $ALAMIN <<- EOF
+    if [ ! -f $CHROOT/home/kali/Desktop/Al_Amin_Zone.desktop ]; then
+        cat > $CHROOT/home/kali/Desktop/Al_Amin_Zone.desktop <<- EOF
 [Desktop Entry]
 Version=1.0
 Type=Link
@@ -1254,7 +1231,7 @@ Comment=
 Icon=/sdcard/kali_voice/Al_Amin_Zone.png
 URL=https://youtube.com/@al-amin_zone
 EOF
-    chmod 700 $ALAMIN
+        chmod 700 $CHROOT/home/kali/Desktop/Al_Amin_Zone.desktop
     fi
 }
 
