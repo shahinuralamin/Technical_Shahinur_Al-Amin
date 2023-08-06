@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash -e
 
 VERSION=2020011601
-MODIFIED="035 04-Aug-2023"
+MODIFIED="036 07-Aug-2023"
 BASE_URL=https://kali.download/nethunter-images/current/rootfs
 VOICE_URL=https://github.com/shahinuralamin/Technical_Shahinur_Al-Amin/releases/download/install-nethunter-modified/kali_voice.tar.xz
 device_arch=$(getprop ro.product.cpu.abi)
@@ -240,7 +240,7 @@ function prepare_fs() {
     read -p "[?] Enter your decision you want to restore or delete backup and create a new one? " REPLY
     printf "${reset}"
     case "$REPLY" in
-        1) mv ${CHROOT}-${wimg} ${CHROOT};printf "\n${green}Successfully ${CHROOT}-${wimg} backup restored.${reset}\n";;
+        1) mv ${CHROOT}-${wimg} ${CHROOT};printf "\n${green}Successfully ${CHROOT}-${wimg} backup restored.${reset}\n";prepare_fs;;
         2) printf "\n${red}Deleting ${CHROOT}-${wimg} backup directory...\n";rm -rf ${CHROOT}-${wimg};printf "${green}Successfully ${CHROOT}-${wimg} backup deleted.\nContinuing create a new one.${reset}\n";get_rootfs;get_sha;verify_sha;;
         3) printf "\n${red}"
            echo "       [1] Cancel   'Create a new one'"
@@ -273,7 +273,7 @@ function prepare_fs() {
         if [ -f ${CHROOT}/${wimg}.txt ];then
             if ask "Are you sure it's ${CHROOT}-${wimg} existing rootfs  directory?" "Y"; then
                 printf "\n${yellow}[*] Existing rootfs  directory found.${reset}\n"
-                if ask "Do you want backup or delete and create a new one?" "N"; then
+                if ask "Do you want backup or delete and create a new one this ${wimg} rootfs directory?" "N"; then
                     printf "${blue}"
                     echo "       [1] NetHunter ${CHROOT}-${wimg} Backup"
                     echo "       [2] NetHunter ${CHROOT}-${wimg} Delete"
@@ -320,7 +320,7 @@ function prepare_fs() {
             if ask "Are you sure it's ${CHROOT}-${VRSN} existing rootfs  directory?" "Y"; then
                if [ -f ${CHROOT}/${VRSN}.txt ];then
                  printf "\n${yellow}[*] Existing rootfs ${CHROOT}-${VRSN} directory found.${reset}\n"
-                 if ask "Do you want backup or delete and create a new one?" "N"; then
+                 if ask "Do you want backup or delete and create a new one this ${VRSN} rootfs directory?" "N"; then
                     printf "${blue}"
                     echo "       [1] NetHunter ${CHROOT}-${VRSN} Backup"
                     echo "       [2] NetHunter ${CHROOT}-${VRSN} Delete"
@@ -521,7 +521,7 @@ function check_update() {
             return 0
     	  }
     	  while read line;do case $line in
-             M035) KEEP_UPDATED=1 ;;
+             M036) KEEP_UPDATED=1 ;;
              *) KEEP_UPDATE=1 ;;
     	  esac
     	  done < $PREFIX/bin/modified
@@ -1237,21 +1237,33 @@ EOF
 
 function minimal_nano_gui() {
     clear
+    theme_confirmation() {
+    printf "${green}[√] Selected ${yellow}theme '${LEVEL} size'"
+    read -p "$1 [Y/n] " REPLY
+    if [ -z $REPLY ]; then
+        REPLY="Y"
+    fi
+    case "$REPLY" in
+        N*|n*) minimal_nano_gui ;;
+        Y*|y*) ;;
+        *) theme_confirmation ;;
+    esac
+    }
     printf "${blue}\n[*] Checking GUI package dependencies...\n"
     unset dbus-x11 xfce4 xfce4-terminal tigervnc-standalone-server KEEP_TERMINAL
     if [ ! -f ${CHROOT}/usr/bin/dbus-launch ]; then
         DBUS_X11="dbus-x11";KEEP_TERMINAL=1
     fi
     if [ ! -f ${CHROOT}/usr/bin/startxfce4 ]; then
-        echo "    [1] Kali desktop theme 'higher size' [h]"
-        echo "    [2] Kali desktop theme 'lower size'  [l]"
+        echo "    [1] Kali desktop theme 'Large size' [L]"
+        echo "    [2] Kali desktop theme 'Small size' [S]"
         kali_theme() {
         printf "${light_cyan}[=] Enter the Xfce-theme you want to install:"
         printf "${blue}";read -p "$1 " REPLY
         printf "${reset}"
         case "$REPLY" in
-            1|h) XFCE4="kali-desktop-xfce";KEEP_TERMINAL=1;;
-            2|l) XFCE4="xfce4";XFCE_TERMINAL="xfce4-terminal";KEEP_TERMINAL=1;;
+            1|l|L) XFCE4="kali-desktop-xfce";KEEP_TERMINAL=1;LEVEL='Large';theme_confirmation;;
+            2|s|S) XFCE4="xfce4";XFCE_TERMINAL="xfce4-terminal";KEEP_TERMINAL=1;LEVEL='Small';theme_confirmation;;
             *) kali_theme;;
         esac
         }
