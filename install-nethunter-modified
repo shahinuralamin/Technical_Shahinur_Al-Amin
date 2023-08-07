@@ -169,7 +169,7 @@ function set_storage() {
 }
 
 function set_strings() {
-    echo "    [1]   NetHunter ${SYS_ARCH} (full) [Enter]³ [f][F]"
+    echo "    [1]   NetHunter ${SYS_ARCH} (full)  [Enter³][f][F]"
     echo "    [2]   NetHunter ${SYS_ARCH} (minimal)       [m][M]"
     echo "    [3]   NetHunter ${SYS_ARCH} (nano)          [n][N]"
     image_strings
