@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash -e
 
 VERSION=2020011601
-MODIFIED="036 07-Aug-2023"
+MODIFIED="037 07-Aug-2023"
 BASE_URL=https://kali.download/nethunter-images/current/rootfs
 VOICE_URL=https://github.com/shahinuralamin/Technical_Shahinur_Al-Amin/releases/download/install-nethunter-modified/kali_voice.tar.xz
 device_arch=$(getprop ro.product.cpu.abi)
@@ -240,8 +240,8 @@ function prepare_fs() {
     read -p "[?] Enter your decision you want to restore or delete backup and create a new one? " REPLY
     printf "${reset}"
     case "$REPLY" in
-        1) mv ${CHROOT}-${wimg} ${CHROOT};printf "\n${green}Successfully ${CHROOT}-${wimg} backup restored.${reset}\n";prepare_fs;;
-        2) printf "\n${red}Deleting ${CHROOT}-${wimg} backup directory...\n";rm -rf ${CHROOT}-${wimg};printf "${green}Successfully ${CHROOT}-${wimg} backup deleted.\nContinuing create a new one.${reset}\n";get_rootfs;get_sha;verify_sha;;
+        1) mv ${CHROOT}-${wimg} ${CHROOT};printf "\n${green}Successfully rootfs ${CHROOT}-${wimg} backup directory restored.${reset}\n";prepare_fs;;
+        2) printf "\n${red}Deleting rootfs ${CHROOT}-${wimg} backup directory...\n";rm -rf ${CHROOT}-${wimg};printf "${green}Successfully rootfs ${CHROOT}-${wimg} backup directory deleted.\nContinuing create a new one.${reset}\n";get_rootfs;get_sha;verify_sha;;
         3) printf "\n${red}"
            echo "       [1] Cancel   'Create a new one'"
            echo "       [2] Return   'Search rootfs directory'"
@@ -272,7 +272,7 @@ function prepare_fs() {
         fi
         if [ -f ${CHROOT}/${wimg}.txt ];then
             if ask "Are you sure it's ${CHROOT}-${wimg} existing rootfs  directory?" "Y"; then
-                printf "\n${yellow}[*] Existing rootfs  directory found.${reset}\n"
+                printf "\n${yellow}[*] Existing rootfs ${CHROOT}-${wimg} directory found.${reset}\n"
                 if ask "Do you want backup or delete and create a new one this ${wimg} rootfs directory?" "N"; then
                     printf "${blue}"
                     echo "       [1] NetHunter ${CHROOT}-${wimg} Backup"
@@ -415,7 +415,7 @@ function prepare_fs() {
     else
         printf "\n${yellow}[*] Rootfs ${CHROOT} directory not found.${resetl}\n"
         if [ -d ${CHROOT}-${wimg} ]; then
-            printf "\n${yellow}[√] ${CHROOT}-${wimg} backup found.${blue}\n"
+            printf "\n${yellow}[√] Rootfs ${CHROOT}-${wimg} backup directory found.${blue}\n"
             echo "       [1] ${CHROOT}-${wimg} backup Restore"
             echo "       [2] ${CHROOT}-${wimg} backup Delete"
             echo "       [3] Cancel return and exit"
@@ -521,7 +521,7 @@ function check_update() {
             return 0
     	  }
     	  while read line;do case $line in
-             M036) KEEP_UPDATED=1 ;;
+             M037) KEEP_UPDATED=1 ;;
              *) KEEP_UPDATE=1 ;;
     	  esac
     	  done < $PREFIX/bin/modified
