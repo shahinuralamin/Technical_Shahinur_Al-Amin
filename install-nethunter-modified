@@ -169,9 +169,9 @@ function set_storage() {
 }
 
 function set_strings() {
-    echo "    [1]   NetHunter ${SYS_ARCH} (full)  [Enter³][f][F]"
-    echo "    [2]   NetHunter ${SYS_ARCH} (minimal)       [m][M]"
-    echo "    [3]   NetHunter ${SYS_ARCH} (nano)          [n][N]"
+    echo "    [1]   NetHunter ${SYS_ARCH} (full)        [Enter³]"
+    echo "    [2]   NetHunter ${SYS_ARCH} (minimal)     [m]  [M]"
+    echo "    [3]   NetHunter ${SYS_ARCH} (nano)        [n]  [N]"
     image_strings
     CHROOT=kali-${SYS_ARCH}
     IMAGE_NAME=kalifs-${SYS_ARCH}-${wimg}.tar.xz
