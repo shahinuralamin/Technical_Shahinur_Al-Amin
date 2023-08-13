@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash -e
 
 VERSION=2020011601
-MODIFIED="040 08-Aug-2023"
+MODIFIED="041 13-Aug-2023"
 BASE_URL=https://kali.download/nethunter-images/current/rootfs
 VOICE_URL=https://github.com/shahinuralamin/Technical_Shahinur_Al-Amin/releases/download/install-nethunter-modified/kali_voice.tar.xz
 device_arch=$(getprop ro.product.cpu.abi)
@@ -532,7 +532,7 @@ function check_update() {
             return 0
     	  }
     	  while read line;do case $line in
-             M040) KEEP_UPDATED=1 ;;
+             M041) KEEP_UPDATED=1 ;;
              *) KEEP_UPDATE=1 ;;
     	  esac
     	  done < $PREFIX/bin/modified
@@ -1331,6 +1331,9 @@ EOF
                     }
                 fi
             done
+            if [ $XFCE4 == "kali-desktop-xfce" ]; then
+                echo "Al-Amin Zone" >> ${CHROOT}/usr/bin/.kali_desktop_theme
+            fi
             printf "\n${blue}[*] Configuring VNC startup……${reset}\n"
             VNC_LAUNCHER=${CHROOT}/home/kali/.vnc/xstartup
             VNC_SHORTCUT=${CHROOT}/root/.vnc/xstartup
@@ -1380,16 +1383,18 @@ EOF
             fi
         fi
     fi
-    if ask "Do you want to install media player, internet browser and text pad?" "N"; then
-        clear
-        echo 'Installing Media Player'
-        $NH_LAUNCHER sudo apt install parole
-        clear
-        echo 'Installing Firefox browser'
-        $NH_LAUNCHER sudo apt install firefox-esr
-        clear
-        echo 'Installing Mousepad'
-        $NH_LAUNCHER sudo apt install mousepad
+    if [ ! -f ${CHROOT}/usr/bin/.kali_desktop_theme ]; then
+        if ask "Do you want to install media player, internet browser and text pad?" "N"; then
+            clear
+            echo 'Installing Media Player'
+            $NH_LAUNCHER sudo apt install parole
+            clear
+            echo 'Installing Firefox browser'
+            $NH_LAUNCHER sudo apt install firefox-esr
+            clear
+            echo 'Installing Mousepad'
+            $NH_LAUNCHER sudo apt install mousepad
+        fi
     fi
     }
     checkup_internet
