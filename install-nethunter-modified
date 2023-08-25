@@ -1285,7 +1285,7 @@ function minimal_nano_gui() {
     if [ ! -f ${CHROOT}/usr/bin/dbus-launch ]; then
         DBUS_X11="dbus-x11";KEEP_TERMINAL=1
     fi
-    if [ ! -f ${CHROOT}/usr/bin/startxfce41 ]; then
+    if [ ! -f ${CHROOT}/usr/bin/startxfce4 ]; then
         echo "    [1] Kali desktop theme 'Large size' [L]"
         echo "    [2] Kali desktop theme 'Small size' [S]"
         kali_theme() {
