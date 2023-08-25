@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash -e
 
 VERSION=2020011601
-MODIFIED="043 22-Aug-2023"
+MODIFIED="043 25-Aug-2023"
 BASE_URL=https://kali.download/nethunter-images/current/rootfs
 VOICE_URL=https://github.com/shahinuralamin/Technical_Shahinur_Al-Amin/releases/download/install-nethunter-modified/kali_voice.tar.xz
 device_arch=$(getprop ro.product.cpu.abi)
@@ -1285,7 +1285,7 @@ function minimal_nano_gui() {
     if [ ! -f ${CHROOT}/usr/bin/dbus-launch ]; then
         DBUS_X11="dbus-x11";KEEP_TERMINAL=1
     fi
-    if [ ! -f ${CHROOT}/usr/bin/startxfce4 ]; then
+    if [ ! -f ${CHROOT}/usr/bin/startxfce41 ]; then
         echo "    [1] Kali desktop theme 'Large size' [L]"
         echo "    [2] Kali desktop theme 'Small size' [S]"
         kali_theme() {
@@ -1347,7 +1347,10 @@ EOF
                     printf "${green}\n";read -p "Installing ${g}... [Enter] "; printf "${reset}\n"
                     $NH_LAUNCHER sudo apt reinstall -y $g || {
                         printf "${red}ERROR: Failed to install GUI packages.\n Exiting.\n${reset}"
-                        exit
+                        $NH_LAUNCHER apt update -y || {
+                            printf "${red}ERROR: Failed to apt install packages.\n Exiting.\n${reset}"
+                            exit
+                        }
                     }
                 fi
             done
