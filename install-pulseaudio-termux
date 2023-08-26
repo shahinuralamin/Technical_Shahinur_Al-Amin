@@ -336,7 +336,7 @@ function pa_start() {
                apt install axel -y &> /dev/null
                axel --output=\$HOME/pulseaudioinstaller https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/install-pulseaudio-termux || {
                     printf "\n\033[1;31mInternet connection error\033[0m\n"
-		    pulseaudio --start --load="module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1" --exit-idle-time=-1 || {
+                    pulseaudio --start --load="module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1" --exit-idle-time=-1 || {
                         PULSE=1
                         exit
                     }
