@@ -326,7 +326,7 @@ function create_launcher() {
 #!/data/data/com.termux/files/usr/bin/bash -e
 cd \${HOME}
 function pa_start() {
-    pulseaudio --start --load="module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1" --exit-idle-time=-1 &> /dev/null || {
+    pulseaudio --start --load="module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1" --exit-idle-time=-1 || {
                printf "\n\033[1;31mProblem of Pulseaudio\033[0m\n\n"
                apt update &> /dev/null
                apt-get update &> /dev/null
@@ -334,7 +334,7 @@ function pa_start() {
                echo "Again installing packages"
                apt reinstall pulseaudio -y &> /dev/null ||:
                apt install axel -y &> /dev/null
-               axel --output=$HOME/pulseaudioinstaller https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/install-pulseaudio-termux || {
+               axel --output=\$HOME/pulseaudioinstaller https://raw.githubusercontent.com/shahinuralamin/Technical_Shahinur_Al-Amin/main/install-pulseaudio-termux || {
                     printf "\n\033[1;31mInternet connection error\033[0m\n"
 		    pulseaudio --start --load="module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1" --exit-idle-time=-1 || {
                         PULSE=1
@@ -344,7 +344,7 @@ function pa_start() {
                if [ -f pulseaudioinstaller ]; then
        	       mv pulseaudioinstaller install-pulseaudio-termux;chmod +x install-pulseaudio-termux;./install-pulseaudio-termux;pa_start;exit
                fi
-               if [ -z $PULSE ]; then
+               if [ -z \$PULSE ]; then
                echo "pulseaudio is ok"
                fi
     }
@@ -354,7 +354,7 @@ function pa_start() {
 }
 
 function pa_stop() {
-    pulseaudio --kill &> /dev/null || {
+    pulseaudio --kill || {
                printf "\n\033[1;31m[!] Pulseaudio is not running.\n    Please try again...\033[0m\n\n"
                auto-0
                exit
@@ -365,19 +365,25 @@ function pa_stop() {
 }
 
 function auto-0() {
-    cat > $PREFIX/bin/pa-auto <<- EOM
+    if [ -f \$PREFIX/bin/pa-auto ]; then
+        rm -f \$PREFIX/bin/pa-auto
+    fi
+    cat > \$PREFIX/bin/pa-auto <<- EOM
     pa-0
 EOM
 }
 
 function auto-1() {
-    cat > $PREFIX/bin/pa-auto <<- EOM
+    if [ -f \$PREFIX/bin/pa-auto ]; then
+        rm -f \$PREFIX/bin/pa-auto
+    fi
+    cat > \$PREFIX/bin/pa-auto <<- EOM
     pa-1
 EOM
 }
 
 function auto() {
-    if [ ! -f $PREFIX/bin/pa-auto ]; then
+    if [ ! -f \$PREFIX/bin/pa-auto ]; then
              pa_start
              exit
     fi
@@ -386,7 +392,7 @@ function auto() {
         pa-0) pa_start;;
         pa-1) pa_stop;;
     esac
-    done < $PREFIX/bin/pa-auto
+    done < \$PREFIX/bin/pa-auto
 }
 
 case "\$1" in
