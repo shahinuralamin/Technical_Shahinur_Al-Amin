@@ -546,7 +546,10 @@ function prefix() {
 
 function excute_bin() {
     if [ -f $HOME/termux-prefix-switcher ]; then
-         cp $HOME/termux-prefix-switcher $PREFIX/bin/termux-prefix-switcher && chmod +x $PREFIX/bin/termux-prefix-switcher
+         if [ -f $PREFIX/bin/termux-prefix-switcher ]; then
+             rm -f $PREFIX/bin/termux-prefix-switcher
+         fi
+         echo "\$HOME/termux-prefix-switcher \$1" >> $PREFIX/bin/termux-prefix-switcher && chmod +x $PREFIX/bin/termux-prefix-switcher
          printf "${green}Prefix Switcher Excuted${reset}\n"
     fi
 }
