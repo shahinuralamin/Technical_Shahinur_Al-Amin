@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash -e
 
 VERSION=2020011601
-MODIFIED="044 25-Aug-2023"
+MODIFIED="045 31-Aug-2023"
 BASE_URL=https://kali.download/nethunter-images/current/rootfs
 VOICE_URL=https://github.com/shahinuralamin/Technical_Shahinur_Al-Amin/releases/download/install-nethunter-modified/kali_voice.tar.xz
 device_arch=$(getprop ro.product.cpu.abi)
@@ -373,7 +373,7 @@ function prepare_fs() {
                  fi
                fi
             else
-                rm -f ${CHROOT}/${wimg}.txt;prepare_fs
+                rm -f ${CHROOT}/${VRSN}.txt;prepare_fs
             fi
             }
             last_time_vrsn() {
@@ -534,7 +534,7 @@ function check_update() {
             return 0
     	  }
     	  while read line;do case $line in
-             M044) KEEP_UPDATED=1 ;;
+             M045) KEEP_UPDATED=1 ;;
              *) KEEP_UPDATE=1 ;;
     	  esac
     	  done < $PREFIX/bin/modified
