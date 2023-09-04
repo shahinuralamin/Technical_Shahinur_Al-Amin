@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash -e
 
 VERSION=2020011601
-MODIFIED="046 01-Sep-2023"
+MODIFIED="047 04-Sep-2023"
 BASE_URL=https://kali.download/nethunter-images/current/rootfs
 VOICE_URL=https://github.com/shahinuralamin/Technical_Shahinur_Al-Amin/releases/download/install-nethunter-modified/kali_voice.tar.xz
 device_arch=$(getprop ro.product.cpu.abi)
@@ -541,7 +541,7 @@ function check_update() {
             return 0
     	  }
     	  while read line;do case $line in
-             M046) KEEP_UPDATED=1 ;;
+             M047) KEEP_UPDATED=1 ;;
              *) KEEP_UPDATE=1 ;;
     	  esac
     	  done < $PREFIX/bin/modified
@@ -1310,7 +1310,7 @@ function minimal_nano_gui() {
     if [ ! -f ${CHROOT}/usr/bin/dbus-launch ]; then
         DBUS_X11="dbus-x11";KEEP_TERMINAL=1
     fi
-    if [ ! -f ${CHROOT}/usr/bin/startxfce41 ]; then
+    if [ ! -f ${CHROOT}/usr/bin/startxfce4 ]; then
         echo "    [1] Kali desktop theme 'Large size' [L]"
         echo "    [2] Kali desktop theme 'Small size' [S]"
         kali_theme() {
