@@ -98,7 +98,7 @@ function image_strings() {
         1|f|F) wimg="full";confirmation;;
         2|m|M) wimg="minimal";confirmation;;
         3|n|N) case ${SYS_ARCH} in
-                 amd64|arm64|i386) printf "${red}    [!]  NetHunter ${SYS_ARCH} (nano) not found.\n";image_strings;;
+                 amd64|i386) printf "${red}    [!]  NetHunter ${SYS_ARCH} (nano) not found.\n";image_strings;;
                  arm64|armhf) wimg="nano";confirmation;;
                  esac ;;
         *)       unset ENTER;printf "${yellow}~ Reply the image serial number or letters.\n"
@@ -175,7 +175,7 @@ function set_strings() {
     echo "    [1]  NetHunter ${SYS_ARCH} (full)    (Enter)³ [F][f]"
     echo "    [2]  NetHunter ${SYS_ARCH} (minimal)          [M][m]"
     case ${SYS_ARCH} in
-        amd64|arm64|i386) echo "    [3]  NetHunter ${SYS_ARCH} (nano) (not found) [N][n]";;
+        amd64|i386) echo "    [3]  NetHunter ${SYS_ARCH} (nano) (not found) [N][n]";;
         *) echo "    [3]  NetHunter ${SYS_ARCH} (nano)             [N][n]";;
     esac
     image_strings
