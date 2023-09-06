@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash -e
 
 VERSION=2020011601
-MODIFIED="047 04-Sep-2023"
+MODIFIED="048 06-Sep-2023"
 BASE_URL=https://kali.download/nethunter-images/current/rootfs
 VOICE_URL=https://github.com/shahinuralamin/Technical_Shahinur_Al-Amin/releases/download/install-nethunter-modified/kali_voice.tar.xz
 device_arch=$(getprop ro.product.cpu.abi)
@@ -98,7 +98,7 @@ function image_strings() {
         1|f|F) wimg="full";confirmation;;
         2|m|M) wimg="minimal";confirmation;;
         3|n|N) case ${SYS_ARCH} in
-                 amd64|i386) printf "${red}      [!] NetHunter ${SYS_ARCH} (nano) not found.\n${blue}";image_strings;;
+                 amd64|arm64|i386) printf "${red}    [!]  NetHunter ${SYS_ARCH} (nano) not found.\n";image_strings;;
                  arm64|armhf) wimg="nano";confirmation;;
                  esac ;;
         *)       unset ENTER;printf "${yellow}~ Reply the image serial number or letters.\n"
@@ -174,7 +174,10 @@ function set_storage() {
 function set_strings() {
     echo "    [1]  NetHunter ${SYS_ARCH} (full)    (Enter)³ [F][f]"
     echo "    [2]  NetHunter ${SYS_ARCH} (minimal)          [M][m]"
-    echo "    [3]  NetHunter ${SYS_ARCH} (nano)             [N][n]"
+    case ${SYS_ARCH} in
+        amd64|arm64|i386) echo "    [3]  NetHunter ${SYS_ARCH} (nano) (not found) [N][n]";;
+        *) echo "    [3]  NetHunter ${SYS_ARCH} (nano)             [N][n]";;
+    esac
     image_strings
     CHROOT=kali-${SYS_ARCH}
     IMAGE_NAME=kalifs-${SYS_ARCH}-${wimg}.tar.xz
@@ -541,7 +544,7 @@ function check_update() {
             return 0
     	  }
     	  while read line;do case $line in
-             M047) KEEP_UPDATED=1 ;;
+             M048) KEEP_UPDATED=1 ;;
              *) KEEP_UPDATE=1 ;;
     	  esac
     	  done < $PREFIX/bin/modified
