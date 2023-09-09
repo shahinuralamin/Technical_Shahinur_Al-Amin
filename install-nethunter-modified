@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash -e
 
 VERSION=2020011601
-MODIFIED="048 06-Sep-2023"
+MODIFIED="049 09-Sep-2023"
 BASE_URL=https://kali.download/nethunter-images/current/rootfs
 VOICE_URL=https://github.com/shahinuralamin/Technical_Shahinur_Al-Amin/releases/download/install-nethunter-modified/kali_voice.tar.xz
 device_arch=$(getprop ro.product.cpu.abi)
@@ -544,7 +544,7 @@ function check_update() {
             return 0
     	  }
     	  while read line;do case $line in
-             M048) KEEP_UPDATED=1 ;;
+             M049) KEEP_UPDATED=1 ;;
              *) KEEP_UPDATE=1 ;;
     	  esac
     	  done < $PREFIX/bin/modified
@@ -841,13 +841,13 @@ EOF
 ; deferred-volume-extra-delay-usec = 0
 EOF
         chmod 700 $PREFIX/bin/sound
+    fi
         if [ -f ./sound ]; then
             rm -f ./sound
         fi
         if [ ! -f ./sound ]; then
             ln -s $PREFIX/bin/sound ./sound >/dev/null
         fi
-    fi
 }
 
 function get_url() {
@@ -1481,18 +1481,18 @@ function alhamdulillah() {
 
 function print_banner() {
     clear
-    printf "${yellow}##################################################\n"
-    printf "${yellow}##                ${light_cyan}Al-Amin Zone${yellow}                  ##\n"
-    printf "${yellow}##  ${red}88      a8P         db        88        88${yellow}  ##\n"
-    printf "${yellow}##  ${red}88    .88'         d88b       88        88${yellow}  ##\n"
-    printf "${yellow}##  ${red}88   88'          d8''8b      88        88${yellow}  ##\n"
-    printf "${yellow}##  ${red}88 d88           d8'  '8b     88        88${yellow}  ##\n"
-    printf "${yellow}##  ${red}8888'88.        d8YaaaaY8b    88        88${yellow}  ##\n"
-    printf "${yellow}##  ${red}88P   Y8b      d8''''''''8b   88        88${yellow}  ##\n"
-    printf "${yellow}##  ${red}88     '88.   d8'        '8b  88        88${yellow}  ##\n"
-    printf "${yellow}##  ${red}88       Y8b d8'          '8b 888888888 88${yellow}  ##\n"
-    printf "${yellow}##           ${blue}Moded By Shahinur Al-Amin${yellow}          ##\n"
-    printf "${yellow}####  ############## ${green}NetHunter${yellow} #############  ####${reset}\n\n"
+    printf "${blue}##################################################\n"
+    printf "${blue}##                ${light_cyan}Al-Amin Zone${blue}                  ##\n"
+    printf "${blue}##  88      a8P         db        88        88  ##\n"
+    printf "${blue}##  88    .88'         d88b       88        88  ##\n"
+    printf "${blue}##  88   88'          d8''8b      88        88  ##\n"
+    printf "${blue}##  88 d88           d8'  '8b     88        88  ##\n"
+    printf "${blue}##  8888'88.        d8YaaaaY8b    88        88  ##\n"
+    printf "${blue}##  88P   Y8b      d8''''''''8b   88        88  ##\n"
+    printf "${blue}##  88     '88.   d8'        '8b  88        88  ##\n"
+    printf "${blue}##  88       Y8b d8'          '8b 888888888 88  ##\n"
+    printf "${blue}##          ${green}S M Sahinur Alam (Al-Amin)${blue}          ##\n"
+    printf "${blue}####  ############# NetHunter ####################${reset}\n\n"
 }
 
 
