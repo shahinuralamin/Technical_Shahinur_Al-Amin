@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash -e
 
 VERSION=2020011601
-MODIFIED="051 11-Sep-2023"
+MODIFIED="052 12-Sep-2023"
 BASE_URL=https://kali.download/nethunter-images/current/rootfs
 VOICE_URL=https://github.com/shahinuralamin/Technical_Shahinur_Al-Amin/releases/download/install-nethunter-modified/kali_voice.tar.xz
 device_arch=$(getprop ro.product.cpu.abi)
@@ -304,7 +304,7 @@ function prepare_fs() {
             fi
         fi
         if [ -f ${CHROOT}/${wimg}.txt ];then
-            if ask "Are you sure it's ${CHROOT}-${wimg} existing rootfs  directory?" "Y"; then
+            if ask "Are you sure ${CHROOT} is ${wimg} existing rootfs  directory?" "Y"; then
                 printf "\n${yellow}[*] Existing rootfs ${CHROOT}-${wimg} directory found.${reset}\n"
                 if ask "Do you want backup or delete and create a new one this ${wimg} rootfs directory?" "N"; then
                     printf "${blue}"
@@ -350,7 +350,7 @@ function prepare_fs() {
             fi
         else
             finding_vrsn() {
-            if ask "Are you sure it's ${CHROOT}-${VRSN} existing rootfs  directory?" "Y"; then
+            if ask "Are you sure ${CHROOT} is ${VRSN} existing rootfs  directory?" "Y"; then
                if [ -f ${CHROOT}/${VRSN}.txt ];then
                  printf "\n${yellow}[*] Existing rootfs ${CHROOT}-${VRSN} directory found.${reset}\n"
                  if ask "Do you want backup or delete and create a new one this ${VRSN} rootfs directory?" "N"; then
@@ -554,7 +554,7 @@ function check_update() {
             return 0
     	  }
     	  while read line;do case $line in
-             M051) KEEP_UPDATED=1 ;;
+             M052) KEEP_UPDATED=1 ;;
              *) KEEP_UPDATE=1 ;;
     	  esac
     	  done < $PREFIX/bin/modified
@@ -600,7 +600,7 @@ function update() {
                echo "Again run script cd;./install-nethunter-modified"
                rm -f $PREFIX/bin/sound
                exit;;
-          N*|y*) return 0;;
+          N*|n*) return 0;;
           *)   update_confirmation;;
         esac
         }
